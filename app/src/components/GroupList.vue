@@ -1,0 +1,105 @@
+<template>
+  <div class="group-list">
+    <div class="table">
+      <table>
+        <caption>
+          <div class="data">
+            <div class="title">Grupos cadastrados</div>
+          </div>
+        </caption>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Grupos</th>
+            <th>Usuários</th>
+            <th>Organizações</th>
+            <th>Aplicações</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in store.rows" :key="row.id">
+            <td>{{ row.name }}</td>
+            <td>
+              <div class="permits">
+                <div v-if="row.privileges?.group === 'rw'">
+                  <span class="material-icons">check</span>
+                  <span class="text">Escrita</span>
+                </div>
+                <div v-else-if="row.privileges?.group === 'r'">
+                  <span class="material-icons">check</span>
+                  <span class="text">Leitura</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="permits">
+                <div v-if="row.privileges?.user === 'rw'">
+                  <span class="material-icons">check</span>
+                  <span class="text">Escrita</span>
+                </div>
+                <div v-else-if="row.privileges?.user === 'r'">
+                  <span class="material-icons">check</span>
+                  <span class="text">Leitura</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="permits">
+                <div v-if="row.privileges?.client === 'rw'">
+                  <span class="material-icons">check</span>
+                  <span class="text">Escrita</span>
+                </div>
+                <div v-else-if="row.privileges?.client === 'r'">
+                  <span class="material-icons">check</span>
+                  <span class="text">Leitura</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="permits">
+                <div v-if="row.privileges?.app === 'rw'">
+                  <span class="material-icons">check</span>
+                  <span class="text">Escrita</span>
+                </div>
+                <div v-else-if="row.privileges?.app === 'r'">
+                  <span class="material-icons">check</span>
+                  <span class="text">Leitura</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="buttons">
+                <button @click="emit('edit', row)" type="button" class="icon">
+                  <span class="material-icons">edit</span>
+                </button>
+                <button @click="destroy(row)" type="button" class="icon">
+                  <span class="material-icons">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import axios from "axios";
+import { inject } from "vue";
+import { useGroupStore } from "@/store/group-store";
+const store = useGroupStore();
+const http = inject("http", axios);
+
+const emit = defineEmits<{ (e: "edit", payload: Group): void }>();
+
+async function destroy(group: Group) {
+  try {
+    if (confirm(`Tem certeza que deseja remover o grupo ${group.name}`)) {
+      await http.delete(`groups/${group.id}`);
+      store.destroy(group);
+    }
+  } catch ({ response }: any) {}
+}
+</script>

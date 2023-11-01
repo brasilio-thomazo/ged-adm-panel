@@ -1,0 +1,11 @@
+.env
+.env.production
+.env.test
+*.log
+node_modules/
+vendor/
+.idea/
+.vscode/
+/kubernetes
+
+```

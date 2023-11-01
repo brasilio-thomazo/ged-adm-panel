@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-reader
+spec:
+  selector:
+    matchLabels:
+      app: postgres-reader
+  serviceName: postgres-reader
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres-reader
+    spec:
+      containers:
+        - name: postgres-reader
+          image: devoptimus/postgres:latest
+          ports:
+            - containerPort: 5432
+              name: postgres-reader
+          env:
+            - name: MASTER_SERVER
+              value: postgres-writer
+            - name: MASTER_PORT
+              value: "5432"
+            - name: SLOT_NAME
+              value: master
+          envFrom:
+            - secretRef:
+                name: "postgres-secret"
+          volumeMounts:
+            - name: storage
+              mountPath: /var/lib/postgresql
+  volumeClaimTemplates:
+    - metadata:
+        name: storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

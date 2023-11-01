@@ -1,0 +1,28 @@
+#app-list,
+#app-show {
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  td {
+    .status {
+      justify-content: space-between;
+    }
+  }
+  .online {
+    color: teal;
+    font-size: 1.2em;
+  }
+  .offline {
+    color: crimson;
+    font-size: 1.2em;
+  }
+
+  .pre {
+    font-family: monospace;
+    padding: 10px;
+    border: 1px solid var(--boder-color);
+    font-size: 1.2em;
+  }
+}
