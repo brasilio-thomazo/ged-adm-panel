@@ -18,7 +18,7 @@ class FileController extends Controller
 
     public function create(Request $request, App $app): Response
     {
-        $filename = "k8s-" . $app->id . ".yaml";
+        $filename = "k8s/" . $app->id . ".yaml";
         $url = Storage::temporaryUrl($filename, now()->addMinutes(1));
         $data = ['url' => $url];
         return response($data, 201);
