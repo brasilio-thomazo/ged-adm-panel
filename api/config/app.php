@@ -185,4 +185,6 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
+    'client_container' => env('CLIENT_CONTAINER', null),
+
 ];
