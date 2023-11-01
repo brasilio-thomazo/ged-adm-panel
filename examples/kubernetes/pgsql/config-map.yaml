@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config-map
+data:
+  MASTER_HOST: postgres-writer
+  MASTER_PORT: "5432"
+  SLOT_NAME: master

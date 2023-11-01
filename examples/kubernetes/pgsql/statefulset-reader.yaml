@@ -20,15 +20,13 @@ spec:
             - containerPort: 5432
               name: postgres-reader
           env:
-            - name: MASTER_SERVER
-              value: postgres-writer
-            - name: MASTER_PORT
-              value: "5432"
-            - name: SLOT_NAME
-              value: master
+            - name: REPLICATION_MODE
+              value: slave
           envFrom:
             - secretRef:
                 name: "postgres-secret"
+            - configMapRef:
+                name: "postgres-config-map"
           volumeMounts:
             - name: storage
               mountPath: /var/lib/postgresql
