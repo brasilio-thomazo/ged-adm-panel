@@ -27,7 +27,5 @@ Route::get('app/{app}/users', [\App\Http\Controllers\App\UserController::class, 
 Route::get('app/{app}/groups', [\App\Http\Controllers\App\GroupController::class, 'index']);
 Route::get('app/{app}/departments', [\App\Http\Controllers\App\DepartmentController::class, 'index']);
 
-
-// Route::post('app/{app}/test', [AppController::class, 'test'])->name('app.test');
-// Route::post('app/{app}/install', [AppController::class, 'install'])->name('app.test');
-// Route::post('app/{app}/start', [AppController::class, 'start'])->name('app.test');
+Route::get("k8s/{path}", [\App\Http\Controllers\FileController::class, "show"])->where('path', '^k8s/[a-z0-9-]{36}\.yaml')->name("k8s.show");
+Route::post("k8s/{app}", [\App\Http\Controllers\FileController::class, "create"])->name("k8s.create");

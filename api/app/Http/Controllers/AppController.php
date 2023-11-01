@@ -352,7 +352,7 @@ class AppController extends Controller
         $this->makeConfigMap($request, $app, $names, $data);
         $this->makeDeplyments($names, $data);
         $content = implode($crlf, $data);
-        $filename = "k8s-" . $app->id . ".yaml";
+        $filename = "k8s/" . $app->id . ".yaml";
         Storage::put($filename, $content);
         return response($app, 201);
     }
@@ -370,8 +370,6 @@ class AppController extends Controller
      */
     public function update(UpdateAppRequest $request, App $app)
     {
-
-        // dd(config("database.connections"));
         $useCustom = $request->get('use_custom', false);
         $useDomain = $request->get('use_domain', false);
         $nodePort = $app->grpc_port;
@@ -419,7 +417,7 @@ class AppController extends Controller
         $this->makeConfigMap($request, $app, $names, $data);
         $this->makeDeplyments($names, $data);
         $content = implode($crlf, $data);
-        $filename = "k8s-" . $app->id . ".yaml";
+        $filename = "k8s/" . $app->id . ".yaml";
         Storage::put($filename, $content);
         return response($app, 200);
     }
