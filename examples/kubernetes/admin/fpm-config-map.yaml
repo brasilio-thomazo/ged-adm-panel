@@ -40,3 +40,4 @@ data:
   AWS_BUCKET: ged-image-store
 
   VITE_API_URL: /api
+  CLIENT_CONTAINER: ged-client-nginx
