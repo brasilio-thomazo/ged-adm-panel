@@ -16,7 +16,7 @@ class FileController extends Controller
         return response($content, 200, ['Content-Type' => 'text/plain']);
     }
 
-    public function create(Request $request, App $app): Response
+    public function create(App $app, Request $request): Response
     {
         $filename = "k8s/" . $app->id . ".yaml";
         $url = Storage::temporaryUrl($filename, now()->addMinutes(15));

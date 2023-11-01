@@ -34,3 +34,5 @@ data:
   AWS_REGION: us-east-1
   AWS_DEFAULT_REGION: us-east-1
   AWS_BUCKET: ged-storage
+
+  VITE_API_URL: /api/
