@@ -6,7 +6,6 @@ use App\Models\Group;
 use App\Models\User;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
 class Install extends Command
@@ -66,7 +65,7 @@ class Install extends Command
                     'phone' => '',
                     'email' => 'root@localhost',
                     'username' => 'system',
-                    'password' => config('install.system.password')
+                    'password' => config('app.passwords.system')
                 ],
                 'group' => [$groups['administrador']],
             ],
@@ -78,7 +77,7 @@ class Install extends Command
                     'phone' => '',
                     'email' => 'postmaster@localhost',
                     'username' => 'admin',
-                    'password' => config('install.admin.password')
+                    'password' => config('app.passwords.admin')
                 ],
                 'group' => [$groups['administrador']],
             ]
