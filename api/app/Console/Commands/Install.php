@@ -40,7 +40,7 @@ class Install extends Command
 
         print "Running migrate\n";
         try {
-            $this->call("migrate", ['--database' => $connection, '--force' => null], $buffer);
+            $this->call('migrate', ['--force' => null], $buffer);
             print $buffer;
         } catch (Exception $ex) {
             print $ex->getMessage() . "\n";
