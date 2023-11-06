@@ -183,7 +183,7 @@ class AppController extends Controller
         $nginxService = Kubernetes::service($nginxName, [['port' => 80, 'targetPort' => 80]], "LoadBalancer");
         $grpcContainer = Kubernetes::container($grpcName, "devoptimus/ged-grpc-server", [50051], $mount, [$name], [$name]);
         $grpcService = Kubernetes::service($grpcName, [['port' => 50051, 'targetPort' => 50051, 'nodePort' => $app->grpc_port]], "NodePort");
-        $sidecarContainer = Kubernetes::initContainer($fpmName . '-sidecar', "devoptimus/ged-client-cli", ["php"], ["artisan", "app:instrall"], [$name], [$name], $mount);
+        $sidecarContainer = Kubernetes::initContainer($fpmName . '-sidecar', "devoptimus/ged-client-cli", ["php"], ["artisan", "app:install"], [$name], [$name], $mount);
 
 
         $fpm = Kubernetes::deployment($fpmName, [$fpmContainer], $volume, [$sidecarContainer]);

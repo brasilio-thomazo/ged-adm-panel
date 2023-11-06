@@ -30,12 +30,10 @@ data:
   FILESYSTEM_DISK: local
   
   AWS_REGION: sa-east-1
-  AWS_DEFAULT_REGION: sa-east-1
-  AWS_BUCKET: ged-image-store
+  AWS_BUCKET: 'null'
 
   DOMAIN_NAME: optimus.dev.br
 
-  CLIENT_PVC_IMAGES: images-pvc
-  CLIENT_CONTAINER: ged-client-nginx
-
-  NODE_PORTS: "30000-32767"
+  KUBERNETES_PERSISTENT_VOLUME_CLAIN: images-pvc
+  KUBERNETES_CLIENT_CONTAINER: ged-client-nginx
+  KUBERNETES_NODE_PORTS: "30000-32767"
