@@ -160,5 +160,5 @@ if (route.name === 'client.edit') {
   } catch (ex: any) {
     router.push({ name: 'not_found' });
   }
-}
+} else loading.value = false;
 </script>
