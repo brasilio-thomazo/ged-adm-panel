@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateAppRequest extends FormRequest
 {
@@ -22,44 +21,19 @@ class UpdateAppRequest extends FormRequest
      */
     public function rules(): array
     {
-        if ($this->use_custom) {
-            $rule_env = Rule::unique('apps')
-                ->where('db_type', $this->db_type)
-                ->where('db_host', $this->db_host)
-                ->where('db_port', $this->db_port)
-                ->ignore($this->app->id);
-        } else {
-            $rule_env = Rule::unique('apps')->ignore($this->app->id);
-        }
-
         $rules = [
-            'client_id' => 'required|uuid|exists:clients,id',
-            'db_name'   => ['required', 'regex:/^[a-z0-9_]+$/', $rule_env],
+            'use_domain' => 'required|boolean',
+            'use_s3'     => 'required|boolean',
         ];
 
         if ($this->use_domain) {
-            $rules = array_merge($rules, [
-                'domain' => 'required_if:use_domain,true|regex:/^[a-z0-9\.-]$/|unique:apps,domain',
-            ]);
+            $rules['domain'] = 'required|regex:/^[a-z0-9\.-]$/|unique:apps,domain,' . $this->id;
         }
 
-        if ($this->use_custom) {
-            $rules = array_merge($rules, [
-                'redis_host'        => 'required_if:use_custom,true|regex:/^[a-z0-9.-]+$/',
-                'redis_port'        => 'required_if:use_custom,true|integer',
-                'redis_pass'        => 'nullable|string',
-                'db_type'           => 'required_if:use_custom,true|string|in:mysql,pgsql,sqlite',
-                'db_host'           => 'required_if:use_custom,true|string',
-                'db_port'           => 'required_if:use_custom,true|numeric',
-                'super_user'        => 'required_if:use_custom,true|regex:/^[a-zA-Z0-9_]+$/',
-                'super_pass'        => 'required_if:use_custom,true|string',
-                'db_user'           => 'required_if:use_custom,true|regex:/^[a-zA-Z0-9_]+$/',
-                'db_pass'           => 'required_if:use_custom,true|string',
-                'cache_driver'      => 'required_if:use_custom,true|in:redis,memcached,file',
-                'session_driver'    => 'required_if:use_custom,true|in:redis,memcached,file',
-            ]);
+        if ($this->use_s3) {
+            $rules['aws_region'] = 'required|regex:/^[a-z0-9-]+$/';
+            $rules['aws_bucket'] = 'required|regex:/^[a-z0-9-]+$/';
         }
-
 
         return $rules;
     }

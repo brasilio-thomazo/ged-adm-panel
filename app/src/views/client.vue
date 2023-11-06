@@ -1,62 +1,69 @@
 <template>
-  <div id="client-view">
-    <TabPane @edit="edit" @show="show">
-      <div class="buttons">
-        <button @click="create" type="button">
-          <span class="material-icons">add</span>
-          <span class="text">Nova organização</span>
-        </button>
-      </div>
-    </TabPane>
+  <div>
+    <TopBar path="client" />
+    <div v-if="loading" class="loading">aguarde carregando...</div>
+    <div v-else class="view-content">
+      <ClientForm v-if="isForm" @add="add" @update="update" />
+      <ClientList v-else :rows="rows" @remove="remove">
+        <div class="buttons">
+          <button @click="router.push({ name: 'client.new' })" type="button">
+            <span class="material-icons">add</span>
+            <span class="text">Nova organização</span>
+          </button>
+        </div>
+      </ClientList>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useClientStore } from "@/store/client-store";
-import ClientList from "@/components/ClientList.vue";
-import { useTabStore } from "@/store/tab-store";
-import TabPane from "@/components/TabPane.vue";
-import { inject, shallowRef } from "vue";
-import axios from "axios";
-import ClientCreate from "@/components/ClientCreate.vue";
-import ClientEdit from "@/components/ClientEdit.vue";
-import ClientShow from "@/components/ClientShow.vue";
+import ClientList from '@/components/ClientList.vue';
+import ClientForm from '@/components/ClientForm.vue';
+import { useRoute, useRouter } from 'vue-router';
+import TopBar from '@/components/TopBar.vue';
+import { useStore } from '@/store/store';
+import { computed, ref } from 'vue';
+import _ from 'lodash';
 
-const tab = useTabStore();
-const store = useClientStore();
-const http = inject("http", axios);
+const route = useRoute();
+const router = useRouter();
+const store = useStore();
+const http = store.http();
 
-tab.setSlot({
-  list: { slot: shallowRef(ClientList), icon: "list" },
-  create: { slot: shallowRef(ClientCreate), icon: "box_add" },
-  edit: { slot: shallowRef(ClientEdit), icon: "folder_managed" },
-  show: { slot: shallowRef(ClientShow), icon: "preview" },
-  error: {},
-});
+const rows = ref<Client[]>([]);
+const loading = ref(true);
 
-tab.setMain("Organizações", "list", "list", shallowRef(ClientList));
-tab.setExclude("ClientCreate");
+const isForm = computed(
+  () => route.name === 'client.new' || route.name === 'client.edit'
+);
 
-async function create() {
-  tab.addTab("Cadastro", "create");
-}
+const remove = (id: string) => {
+  const index = _.findIndex(rows.value, { id });
+  if (index > -1) {
+    rows.value.splice(index, 1);
+  }
+};
 
-async function edit(payload: Client) {
-  tab.closeFromType("show");
-  tab.addTab(payload.name, "edit");
-}
+const update = (payload: Client) => {
+  const index = _.findIndex(rows.value, { id: payload.id });
+  if (index > -1) {
+    rows.value.splice(index, 1, payload);
+  }
+};
 
-async function show(payload: Client) {
-  tab.closeFromType("edit");
-  tab.addTab(payload.name, "show");
-}
+const add = (payload: Client) => {
+  rows.value.unshift(payload);
+};
 
 try {
-  if (store.rows.length === 0) {
-    const { data } = await http.get<Client[]>("clients");
-    store.setRows(data);
+  const { data } = await http.get<Client[]>('client');
+  rows.value = data;
+  loading.value = false;
+} catch (err: any) {
+  if (err.response) {
+    console.log(err.response.data);
+  } else {
+    console.log(err.message);
   }
-} catch ({ response }: any) {
-  console.log("ERROR: ", response);
 }
 </script>

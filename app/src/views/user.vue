@@ -1,28 +1,60 @@
 <template>
   <div>
-    <div class="user-view">
-      <UserList @edit="edit" />
-      <hr />
-      <UserForm :data="current" />
+    <TopBar path="user" />
+    <div v-if="loading">Carregando aguarde...</div>
+    <div v-else class="view-content">
+      <UserForm v-if="isForm" @add="add" @update="update" />
+      <UserList v-else :rows="users" @remove="remove">
+        <div class="buttons">
+          <button @click="router.push({ name: 'user.new' })" type="button">
+            <span class="material-icons">add</span>
+            <span class="text">Novo usuário</span>
+          </button>
+        </div>
+      </UserList>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from "@/store/user-store";
-import { inject, ref } from "vue";
-import axios from "axios";
-import UserList from "@/components/UserList.vue";
-import UserForm from "@/components/UserForm.vue";
+import UserList from '@/components/UserList.vue';
+import UserForm from '@/components/UserForm.vue';
+import TopBar from '@/components/TopBar.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useStore } from '@/store/store';
+import { computed, ref } from 'vue';
+import _ from 'lodash';
 
-const http = inject("http", axios);
-const userStore = useUserStore();
-const current = ref<User | null>(null);
+const route = useRoute();
+const router = useRouter();
+const store = useStore();
+const http = store.http();
 
-const { data: users } = await http.get<User[]>("users");
-userStore.setRows(users);
+const users = ref<User[]>([]);
+const loading = ref(true);
+const isForm = computed(
+  () => route.name === 'user.new' || route.name === 'user.edit'
+);
 
-function edit(data: User) {
-  current.value = data;
-}
+const remove = (id: string) => {
+  const index = _.findIndex(users.value, { id });
+  if (index > -1) {
+    users.value.splice(index, 1);
+  }
+};
+
+const update = (user: User) => {
+  const index = _.findIndex(users.value, { id: user.id });
+  if (index > -1) {
+    users.value.splice(index, 1, user);
+  }
+};
+
+const add = (user: User) => {
+  users.value.unshift(user);
+};
+
+const { data } = await http.get<User[]>('user');
+users.value = data;
+loading.value = false;
 </script>

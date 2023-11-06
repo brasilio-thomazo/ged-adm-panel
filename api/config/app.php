@@ -186,5 +186,12 @@ return [
     ])->toArray(),
 
     'client_container' => env('CLIENT_CONTAINER', null),
+    'system_password' => env('SYSTEM_PASSWORD', 'system'),
+    'admin_password' => env('ADMIN_PASSWORD', 'admin'),
+    'domain_name' => env('DOMAIN_NAME', 'localhost'),
+    'pvc' => [
+        'images' => env('PVC_IMAGES', 'images-pvc'),
+    ],
+    'node_ports' => env('NODE_PORTS', '30000-32767'),
 
 ];

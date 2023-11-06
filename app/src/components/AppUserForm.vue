@@ -11,30 +11,17 @@
         </div>
         <div class="line">
           <label for="document">CPF/CNPJ:</label>
-          <input
-            type="tel"
-            id="document"
-            v-model="form.identity"
-            v-maska="document"
+          <input type="tel" id="document" v-model="form.identity" v-maska="document"
             data-maska="['###.###.###-##', '##.###.###/####-##']"
-            pattern="^[0-9]{2,3}\.[0-9]{3}\.[0-9]{3}((\/[0-9]{4})?)-[0-9]{2}$"
-            required
-          />
+            pattern="^[0-9]{2,3}\.[0-9]{3}\.[0-9]{3}((\/[0-9]{4})?)-[0-9]{2}$" required />
           <span v-if="error?.errors?.identity" class="error">
             {{ error.errors.identity.join(",") }}
           </span>
         </div>
         <div class="line">
           <label for="departments">Departamento:</label>
-          <select
-            name="departments"
-            id="departments"
-            v-model="form.department_id"
-          >
-            <option
-              v-for="department in appStore.departments"
-              :value="department.id"
-            >
+          <select name="departments" id="departments" v-model="form.department_id">
+            <option v-for="department in appStore.departments" :value="department.id">
               {{ department.name }}
             </option>
           </select>
@@ -45,15 +32,8 @@
         </div>
         <div class="line">
           <label for="phone">Telefone:</label>
-          <input
-            type="tel"
-            id="phone"
-            v-model="form.phone"
-            v-maska="phone"
-            data-maska="['(##) #####-####', '(##) ####-####']"
-            pattern="^\([0-9]{2}\) (9?)[0-9]{4}-[0-9]{4}$"
-            required
-          />
+          <input type="tel" id="phone" v-model="form.phone" v-maska="phone"
+            data-maska="['(##) #####-####', '(##) ####-####']" pattern="^\([0-9]{2}\) (9?)[0-9]{4}-[0-9]{4}$" required />
           <span v-if="error?.errors?.phone" class="error">
             {{ error.errors.phone.join(",") }}
           </span>
@@ -81,23 +61,14 @@
         </div>
         <div class="line">
           <label for="password_confirmation">Confirme a senha:</label>
-          <input
-            type="password"
-            id="password_confirmation"
-            v-model="form.password_confirmation"
-          />
+          <input type="password" id="password_confirmation" v-model="form.password_confirmation" />
         </div>
         <div class="line">
           <label for="group">Grupos:</label>
           <div class="items">
             <div class="item" v-for="group in appStore.groups">
               <label class="box" :for="`group_${group.id}`">
-                <input
-                  type="checkbox"
-                  v-model="form.groups"
-                  :value="group.id"
-                  :id="`group_${group.id}`"
-                />
+                <input type="checkbox" v-model="form.groups" :value="group.id" :id="`group_${group.id}`" />
                 <span class="icon"></span>
                 <span class="text">{{ group.name }}</span>
               </label>
@@ -154,7 +125,7 @@ const error = ref<UserError>();
 const form = ref<AppUserRequest>({ ...userRequest });
 const document = ref<MaskaDetail>({ ...maskDetail });
 const phone = ref<MaskaDetail>({ ...maskDetail });
-const userID = ref<string | null>(null);
+const id = ref<string | null>(null);
 
 watchEffect(() => {
   if (props.data !== null) {
@@ -169,7 +140,7 @@ watchEffect(() => {
       password: "",
       password_confirmation: "",
     };
-    userID.value = props.data.id;
+    id.value = props.data.id;
   }
 });
 
@@ -181,8 +152,8 @@ async function save() {
       phone: phone.value.unmasked,
     };
 
-    if (userID.value !== null) {
-      const url = `app/${props.id}/users/${userID.value}`;
+    if (id.value !== null) {
+      const url = `app/${props.id}/users/${id.value}`;
       const { data } = await http.put<AppUser>(url, request);
       appStore.updateUsers(data);
     } else {
@@ -199,6 +170,6 @@ async function save() {
 
 function reset() {
   form.value = { ...userRequest };
-  userID.value = null;
+  id.value = null;
 }
 </script>

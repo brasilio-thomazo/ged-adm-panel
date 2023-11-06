@@ -5,11 +5,11 @@ import lodash from 'lodash'
 export const useClientStore = defineStore('client.store', () => {
   const rows = ref<Client[]>([])
 
-  function create(payload: Client) {
+  function add(payload: Client) {
     rows.value.unshift(payload)
   }
 
-  function edit(payload: Client) {
+  function update(payload: Client) {
     rows.value = rows.value.map((r) => (r.id === payload.id ? payload : r))
   }
 
@@ -22,5 +22,9 @@ export const useClientStore = defineStore('client.store', () => {
     rows.value = payload
   }
 
-  return { rows, create, edit, destroy, setRows }
+  function getRow(id: string) : Client | undefined {
+    return lodash.find(rows.value, { id })
+  }
+
+  return { rows, update, destroy, setRows, getRow, add }
 })

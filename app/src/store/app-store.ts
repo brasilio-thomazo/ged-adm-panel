@@ -9,17 +9,33 @@ export const useAppStore = defineStore("app.store", () => {
   const departments = ref<AppDepartment[]>([]);
   const documentTypes = ref<AppDocumentType[]>([]);
 
-  function create(payload: App) {
+  function add(payload: App) {
     rows.value.unshift(payload);
   }
 
-  function edit(payload: App) {
+  function update(payload: App) {
     rows.value = rows.value.map((r) => (r.id === payload.id ? payload : r));
   }
 
-  function destroy(payload: App) {
+  function remove(payload: App) {
     const index = lodash.findIndex(rows.value, { id: payload.id });
     if (index >= 0) rows.value.splice(index, 1);
+  }
+
+  function setConfigCache(payload: CacheConfig) {
+    rows.value = rows.value.map((r) =>
+      r.id === payload.app_id ? { ...r, config_cache: payload } : r
+    );
+  }
+
+  function setConfigDatabase(payload: DatabaseConfig) {
+    rows.value = rows.value.map((r) =>
+      r.id === payload.app_id ? { ...r, config_database: payload } : r
+    );
+  }
+
+  function getRow(id: string): App | undefined {
+    return lodash.find(rows.value, { id });
   }
 
   function setRows(payload: App[]) {
@@ -67,10 +83,11 @@ export const useAppStore = defineStore("app.store", () => {
 
   return {
     rows,
-    create,
-    edit,
-    destroy,
+    add,
+    update,
+    remove,
     setRows,
+    getRow,
     setDocumentTypes,
     documentTypes,
     updateDocumentTypes,
@@ -84,5 +101,7 @@ export const useAppStore = defineStore("app.store", () => {
     groups,
     setDepartments,
     departments,
+    setConfigCache,
+    setConfigDatabase,
   };
 });

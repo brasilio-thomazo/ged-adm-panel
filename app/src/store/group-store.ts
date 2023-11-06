@@ -5,15 +5,15 @@ import lodash from 'lodash'
 export const useGroupStore = defineStore('group.store', () => {
   const rows = ref<Group[]>([])
 
-  function create(payload: Group) {
+  function add(payload: Group) {
     rows.value.unshift(payload)
   }
 
-  function edit(payload: Group) {
+  function update(payload: Group) {
     rows.value = rows.value.map((r) => (r.id === payload.id ? payload : r))
   }
 
-  function destroy(payload: Group) {
+  function remove(payload: Group) {
     const index = lodash.findIndex(rows.value, { id: payload.id })
     if (index >= 0) rows.value.splice(index, 1)
   }
@@ -22,5 +22,9 @@ export const useGroupStore = defineStore('group.store', () => {
     rows.value = payload
   }
 
-  return { rows, create, edit, destroy, setRows }
+  function getRow(id: string) {
+    return lodash.find(rows.value, { id })
+  }
+
+  return { rows, add, update, remove, setRows, getRow }
 })

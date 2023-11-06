@@ -43,34 +43,4 @@ class ProfileController extends Controller
         $user->groups;
         return response($user);
     }
-
-    public function login2(AuthRequest $request): Response
-    {
-        if (!auth('web')->attempt($request->except('remember'))) {
-            throw ValidationException::withMessages(['password' => 'password incorrect']);
-        }
-        /**
-         * @var User
-         */
-        $user = auth('web')->user();
-        $user->groups;
-
-        return response($user);
-    }
-
-    public function me2(): Response
-    {
-        /**
-         * @var User
-         */
-        $user = auth('web')->user();
-        $user->groups;
-        return response($user);
-    }
-
-    public function logout()
-    {
-        auth("web")->logout();
-        return response([], 204);
-    }
 }

@@ -23,7 +23,7 @@ class GroupController extends Controller
     public function store(StoreGroupRequest $request)
     {
         $data = $request->all();
-        $data['authorities'] = Group::makeAuthorities($data['privilege']);
+        $data['authorities'] = Group::makeAuthorities($data['privileges']);
         $group = Group::create($data);
         return response($group, 201);
     }
@@ -43,7 +43,7 @@ class GroupController extends Controller
     {
 
         $data = $request->all();
-        $data['authorities'] = Group::makeAuthorities($data['privilege']);
+        $data['authorities'] = Group::makeAuthorities($data['privileges']);
         $group->update($data);
         return response($group, 200);
     }

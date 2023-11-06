@@ -1,50 +1,69 @@
 <template>
-  <div>
-    <div class="group-view">
-      <GroupList @edit="edit" />
-      <hr />
-      <GroupForm :data="current" />
+  <div class="views">
+    <TopBar path="group" />
+    <div v-if="loading" class="loading">aguarde carregando...</div>
+    <div v-else class="view-content">
+      <GroupForm v-if="isForm" @add="add" @update="update" />
+      <GroupList v-else :rows="rows" @remove="remove">
+        <div class="buttons">
+          <button @click="router.push({ name: 'group.new' })" type="button">
+            <span class="material-icons">add</span>
+            <span class="text">Novo grupo</span>
+          </button>
+        </div>
+      </GroupList>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useGroupStore } from "@/store/group-store";
-import GroupList from "@components/GroupList.vue";
-import { inject, ref } from "vue";
-import axios from "axios";
-import _ from "lodash";
-import GroupForm from "@/components/GroupForm.vue";
+import GroupList from '@/components/GroupList.vue';
+import GroupForm from '@/components/GroupForm.vue';
+import TopBar from '@/components/TopBar.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useStore } from '@/store/store';
+import { computed, ref } from 'vue';
+import _ from 'lodash';
 
-const store = useGroupStore();
-const http = inject("http", axios);
-const current = ref<Group | null>(null);
-const { data: groups } = await http.get<Group[]>("groups");
-store.setRows(groups);
+const route = useRoute();
+const router = useRouter();
+const store = useStore();
+const http = store.http();
 
-function edit(data: Group) {
-  console.log(data);
-  current.value = _.cloneDeep(data);
+const rows = ref<Group[]>([]);
+const loading = ref(true);
+
+const isForm = computed(
+  () => route.name === 'group.new' || route.name === 'group.edit'
+);
+
+const remove = (id: number) => {
+  const index = _.findIndex(rows.value, { id });
+  if (index > -1) {
+    rows.value.splice(index, 1);
+  }
+};
+
+const update = (payload: Group) => {
+  const index = _.findIndex(rows.value, { id: payload.id });
+  if (index > -1) {
+    rows.value.splice(index, 1, payload);
+  }
+};
+
+const add = (payload: Group) => {
+  rows.value.unshift(payload);
+};
+
+try {
+  const { data } = await http.get<Group[]>('group');
+  rows.value = data;
+  loading.value = false;
+} catch (err: any) {
+  if (err.response) {
+    console.log(err.response.data);
+  } else {
+    console.log(err.message);
+  }
 }
-
-// try {
-//   if (store.rows.length === 0) {
-//     const { data } = await http.get<Group[]>("group");
-//     store.setRows(data);
-//   }
-//   if (dtype.rows.length === 0) {
-//     const { data } = await http.get<DocumentType[]>("document_type");
-//     dtype.setRows(data);
-//   }
-//   if (search.rows.length === 0) {
-//     const { data } = await http.get<Search[]>("search");
-//     search.setRows(data);
-//   }
-//   if (department.rows.length === 0) {
-//     const { data } = await http.get<Department[]>("department");
-//     department.setRows(data);
-//   }
-// } catch ({ response }: any) {
-//   console.log("ERROR: ", response);
-// }
 </script>

@@ -14,7 +14,7 @@ class UserController extends Controller
     public function index()
     {
         $builder = User::with(['groups'])
-            ///    ->whereNot('username', '=', 'admin');
+            ->whereNot('username', '=', 'admin')
             ->whereNot('username', '=', 'system');
         return response($builder->get());
     }

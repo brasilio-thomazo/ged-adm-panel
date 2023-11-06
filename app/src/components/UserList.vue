@@ -19,20 +19,20 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in store.rows">
+        <tr v-for="row in rows">
           <td>{{ row.name }}</td>
           <td>{{ row.role }}</td>
           <td>{{ mask(row.identity) }}</td>
           <td>{{ mask(row.phone, true) }}</td>
           <td>{{ row.email }}</td>
           <td>{{ row.username }}</td>
-          <td>{{ row.groups.map((g) => g.name).join(" | ") }}</td>
+          <td>{{ row.groups.map((g) => g.name).join(' | ') }}</td>
           <td>
             <div class="buttons">
-              <button @click="emit('edit', row)" type="button" class="icon">
+              <button @click="onEdit(row)" type="button" class="icon">
                 <span class="material-icons">edit</span>
               </button>
-              <button @click="destroy(row)" type="button" class="icon">
+              <button @click="onDelete(row)" type="button" class="icon">
                 <span class="material-icons">delete</span>
               </button>
             </div>
@@ -41,26 +41,36 @@
       </tbody>
     </table>
   </div>
+  <slot />
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from "@store/user-store";
-import axios from "axios";
-import { inject } from "vue";
-import { mask } from "@/provider";
-const store = useUserStore();
-const http = inject("http", axios);
+import { useStore } from '@/store/store';
+import { useRouter } from 'vue-router';
+import { computed } from 'vue';
+import { mask } from '@/provider';
+import _ from 'lodash';
 
-const emit = defineEmits<{
-  (e: "edit", payload: User): void;
-}>();
+const emit = defineEmits<{ (e: 'remove', id: string): void }>();
+const props = defineProps<{ rows: User[] }>();
+const rows = computed(() => props.rows);
+const router = useRouter();
+const store = useStore();
 
-async function destroy(user: User) {
+const http = store.http();
+
+const onEdit = (payload: User) => {
+  router.push({ name: 'user.edit', params: { id: payload.id } });
+};
+
+const onDelete = async (payload: User) => {
   try {
-    if (confirm(`Tem certeza que deseja remover o usuário ${user.username}`)) {
-      await http.delete(`user/${user.id}`);
-      store.destroy(user);
+    if (
+      confirm(`Tem certeza que deseja remover o usuário ${payload.username}`)
+    ) {
+      await http.delete(`user/${payload.id}`);
+      emit('remove', payload.id);
     }
   } catch ({ response }: any) {}
-}
+};
 </script>

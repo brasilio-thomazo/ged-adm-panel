@@ -1,31 +1,28 @@
 <?php
 
-use App\Http\Controllers\AppController;
-use App\Http\Controllers\ClientController;
-use App\Http\Controllers\GroupController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\URL;
 
-Route::post('login', [\App\Http\Controllers\ProfileController::class, "login"]);
+Route::post('login', [\App\Http\Controllers\ProfileController::class, "login"])->name("api.login");
 Route::get('me', [\App\Http\Controllers\ProfileController::class, "me"])->middleware("auth:sanctum");
+/**
+ * Routes for manipule all models
+ */
+Route::apiResource('user', \App\Http\Controllers\UserController::class)->middleware('auth:sanctum');
+Route::apiResource('group', \App\Http\Controllers\GroupController::class)->middleware('auth:sanctum');
+Route::apiResource('client', \App\Http\Controllers\ClientController::class)->middleware('auth:sanctum');
+Route::apiResource('app', \App\Http\Controllers\AppController::class)->middleware('auth:sanctum');
+Route::apiResource('database_config', \App\Http\Controllers\DatabaseConfigController::class)->middleware('auth:sanctum');
+Route::apiResource('cache_config', \App\Http\Controllers\CacheConfigController::class)->middleware('auth:sanctum');
 
-
-Route::apiResource('users', UserController::class);
-Route::apiResource('groups', GroupController::class);
-Route::apiResource('clients', ClientController::class);
-Route::apiResource('apps', AppController::class);
-
-Route::post('app/{app}/subscribe', [AppController::class, 'subscribe'])->name('app.subscribe')->middleware('signed');
-Route::get('/test', function () {
-    $url = URL::signedRoute('app.subscribe', ['app' => '123456abcdef']);
-    return response()->json(['message' => 'Hello World!', 'url' => $url]);
-});
-
+Route::get('app/{app}/kubernetes', [\App\Http\Controllers\AppController::class, 'kubernetes'])->name('app.kubernetes')->middleware('signed');
+Route::get('app/{app}/subscribe', [\App\Http\Controllers\AppController::class, 'subscribe'])->name('app.subscribe')->middleware('signed');
 Route::get('app/{app}/document_types', [\App\Http\Controllers\App\DocumentTypeController::class, 'index']);
+/**
+ * Routes for manipule users in app
+ */
 Route::get('app/{app}/users', [\App\Http\Controllers\App\UserController::class, 'index']);
+Route::post('app/{app}/users', [\App\Http\Controllers\App\UserController::class, 'store']);
+Route::put('app/{app}/users/{id}', [\App\Http\Controllers\App\UserController::class, 'update']);
+
 Route::get('app/{app}/groups', [\App\Http\Controllers\App\GroupController::class, 'index']);
 Route::get('app/{app}/departments', [\App\Http\Controllers\App\DepartmentController::class, 'index']);
-
-Route::get("k8s/{path}", [\App\Http\Controllers\FileController::class, "show"])->where('path', '^k8s/[a-z0-9-]{36}\.yaml')->name("k8s.show");
-Route::post("k8s/{app}", [\App\Http\Controllers\FileController::class, "create"])->name("k8s.create");

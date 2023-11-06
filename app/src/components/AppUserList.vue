@@ -1,5 +1,6 @@
 <template>
-  <div class="table">
+  <div v-if="loading" class="loading">Carregando aguarde...</div>
+  <div v-else class="table">
     <table>
       <caption>
         <div class="data">
@@ -19,17 +20,17 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in store.users">
+        <tr v-for="row in users">
           <td>{{ row.name }}</td>
           <td>{{ row.department.name }}</td>
           <td>{{ mask(row.identity) }}</td>
           <td>{{ mask(row.phone, true) }}</td>
           <td>{{ row.email }}</td>
           <td>{{ row.username }}</td>
-          <td>{{ row.groups.map((g) => g.name).join(" | ") }}</td>
+          <td>{{ row.groups.map((g) => g.name).join(' | ') }}</td>
           <td>
             <div class="buttons">
-              <button @click="emit('edit', row)" type="button" class="icon">
+              <button @click="onEdit(row)" type="button" class="icon">
                 <span class="material-icons">edit</span>
               </button>
               <button @click="destroy(row)" type="button" class="icon">
@@ -44,16 +45,16 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from "@store/app-store";
-import axios from "axios";
-import { inject } from "vue";
-import { mask } from "@/provider";
-const store = useAppStore();
-const http = inject("http", axios);
-
-const emit = defineEmits<{
-  (e: "edit", payload: AppUser): void;
-}>();
+import { mask } from '@/provider';
+import { useStore } from '@/store/store';
+import { ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+const store = useStore();
+const http = store.http();
+const users = ref<AppUser[]>([]);
+const loading = ref(true);
+const router = useRouter();
+const route = useRoute();
 
 async function destroy(user: AppUser) {
   try {
@@ -63,4 +64,15 @@ async function destroy(user: AppUser) {
     }
   } catch ({ response }: any) {}
 }
+
+const onEdit = (user: AppUser) => {
+  router.push({
+    name: 'app.user.edit',
+    params: { app: route.params.app, id: user.id },
+  });
+};
+
+const { data } = await http.get<AppUser[]>('user');
+users.value = data;
+loading.value = false;
 </script>

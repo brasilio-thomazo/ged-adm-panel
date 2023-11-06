@@ -17,24 +17,17 @@ return new class extends Migration
             $table->integer('application')->default(0);
             $table->string('path')->unique();
             $table->string('subdomain')->unique();
-            $table->unsignedInteger('grpc_port')->unique();
+            $table->integer('grpc_port')->unique();
             $table->boolean('use_domain')->default(false);
             $table->string('domain')->nullable();
-            $table->boolean('use_custom')->default(false);
-            $table->string('redis_host')->nullable();
-            $table->integer('redis_port')->nullable();
-            $table->string('memcached_host')->nullable();
-            $table->enum('db_type', ['mysql', 'pgsql', 'sqlite', 'mongodb'])->nullable();
-            $table->string('db_name');
-            $table->string('db_host')->nullable();
-            $table->integer('db_port')->nullable();
-            $table->enum('cache_driver', ['redis', 'memcached', 'file'])->nullable();
-            $table->enum('session_driver', ['redis', 'memcached', 'file'])->nullable();
-            $table->timestamp('installed_at')->nullable();
-            $table->timestamp('started_at')->nullable();
-            $table->string('token')->nullable();
-            $table->unique(['db_type', 'db_name', 'db_host', 'db_port']);
-            $table->timestamps();
+            $table->boolean('use_s3')->default(false);
+            $table->string('aws_region')->nullable();
+            $table->string('aws_bucket')->nullable();
+            $table->bigInteger('installed_at')->unsigned()->nullable();
+            $table->bigInteger('started_at')->unsigned()->nullable();
+            $table->bigInteger('created_at')->unsigned();
+            $table->bigInteger('updated_at')->unsigned();
+            $table->bigInteger('deleted_at')->unsigned()->nullable();
         });
     }
 
