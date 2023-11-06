@@ -36,17 +36,55 @@
               <a :href="row.url_kubernetes" class="icon" target="_blank">
                 <span class="material-icons">widgets</span>
               </a>
-              <button @click="show(row)" type="button" class="icon">
-                <span class="material-icons">pageview</span>
-              </button>
-              <button
-                v-if="store.is_admin"
-                @click="edit(row)"
-                type="button"
+              <RouterLink
+                :to="`/app/${row.id}/group`"
                 class="icon"
+                title="Grupos"
+              >
+                <span class="material-icons">group</span>
+              </RouterLink>
+              <RouterLink
+                :to="`/app/${row.id}/user`"
+                class="icon"
+                title="Usuários"
+              >
+                <span class="material-icons">person</span>
+              </RouterLink>
+              <RouterLink
+                :to="`/app/${row.id}/document-type`"
+                class="icon"
+                title="Tipos de documento"
+              >
+                <span class="material-icons">article</span>
+              </RouterLink>
+              <RouterLink
+                :to="`/app/${row.id}/department`"
+                class="icon"
+                title="Departamentos"
+              >
+                <span class="material-icons">badge</span>
+              </RouterLink>
+              <RouterLink
+                :to="`/app/${row.id}/search`"
+                class="icon"
+                title="Pesquisas"
+              >
+                <span class="material-icons">manage_search</span>
+              </RouterLink>
+              <RouterLink
+                :to="`/app/${row.id}`"
+                class="icon"
+                title="Visualizar"
+              >
+                <span class="material-icons">file_open</span>
+              </RouterLink>
+              <RouterLink
+                :to="`/app/${row.id}/edit`"
+                class="icon"
+                title="Editar"
               >
                 <span class="material-icons">edit</span>
-              </button>
+              </RouterLink>
               <button
                 v-if="store.is_admin"
                 @click="destroy(row)"
@@ -66,24 +104,14 @@
 
 <script setup lang="ts">
 import { useAppStore } from '@/store/app-store';
-import { useStore } from '@/store/store';
-import { useRouter } from 'vue-router';
 import { intervalFromTime } from '@/provider';
+import { useStore } from '@/store/store';
 import { ref } from 'vue';
 const appStore = useAppStore();
-const router = useRouter();
 const loading = ref(true);
 const store = useStore();
 
 const http = store.http();
-
-function edit(app: App) {
-  router.push({ name: 'app.edit', params: { id: app.id } });
-}
-
-function show(app: App) {
-  router.push({ name: 'app.show', params: { id: app.id } });
-}
 
 async function destroy(app: App) {
   try {

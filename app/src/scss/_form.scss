@@ -34,6 +34,17 @@
   margin: 0 auto;
   gap: 15px;
 
+  .custom-rules {
+    .rule {
+      display: flex;
+      align-items: center;
+      padding: 5px 0;
+    }
+    .material-icons {
+      font-size: 1rem;
+    }
+  }
+
   fieldset {
     border: 1px solid var(--boder-color);
     padding: 10px;
@@ -79,10 +90,12 @@
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    flex-direction: row;
     .group {
       border: 1px solid var(--boder-color);
       padding: 5px;
       display: flex;
+      flex-direction: row !important;
       gap: 10px;
     }
   }

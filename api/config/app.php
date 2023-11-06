@@ -185,13 +185,18 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
-    'client_container' => env('CLIENT_CONTAINER', null),
-    'system_password' => env('SYSTEM_PASSWORD', 'system'),
-    'admin_password' => env('ADMIN_PASSWORD', 'admin'),
-    'domain_name' => env('DOMAIN_NAME', 'localhost'),
-    'pvc' => [
-        'images' => env('CLIENT_PVC_IMAGES', 'images-pvc'),
+    'kubernetes' => [
+        'persistent_volume_clain' => env('KUBERNETES_PERSISTENT_VOLUME_CLAIN', 'images-pvc'),
+        'node_ports' => env('KUBERNETES_NODE_PORTS', '30000-32767'),
+        'client_container' => env('KUBERNETES_CLIENT_CONTAINER', 'client'),
     ],
-    'node_ports' => env('NODE_PORTS', '30000-32767'),
+
+    'passwords' => [
+        'system' => env('PASSWORD_SYSTEM', 'system'),
+        'admin' => env('PASSWORD_ADMIN', 'admin'),
+        'user' => env('PASSWORD_USER', 'user'),
+    ],
+
+    'domain_name' => env('DOMAIN_NAME', 'localhost'),
 
 ];

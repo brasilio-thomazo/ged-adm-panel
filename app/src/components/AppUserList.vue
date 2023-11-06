@@ -1,12 +1,6 @@
 <template>
-  <div v-if="loading" class="loading">Carregando aguarde...</div>
-  <div v-else class="table">
+  <div class="table">
     <table>
-      <caption>
-        <div class="data">
-          <div class="title">Usuários cadastrados</div>
-        </div>
-      </caption>
       <thead>
         <tr>
           <th>Nome</th>
@@ -20,7 +14,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in users">
+        <tr v-for="row in rows">
           <td>{{ row.name }}</td>
           <td>{{ row.department.name }}</td>
           <td>{{ mask(row.identity) }}</td>
@@ -42,37 +36,37 @@
       </tbody>
     </table>
   </div>
+  <slot />
 </template>
 
 <script setup lang="ts">
 import { mask } from '@/provider';
 import { useStore } from '@/store/store';
-import { ref } from 'vue';
+import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
+const emit = defineEmits<{ (e: 'remove', id: string): void }>();
+const props = defineProps<{ rows: IUser[] }>();
+const rows = computed(() => props.rows);
 const store = useStore();
 const http = store.http();
-const users = ref<AppUser[]>([]);
-const loading = ref(true);
 const router = useRouter();
 const route = useRoute();
 
-async function destroy(user: AppUser) {
+async function destroy(user: IUser) {
   try {
-    if (confirm(`Tem certeza que deseja remover o usuário ${user.username}`)) {
+    const msg = `Tem certeza que deseja remover o usuário ${user.username}`;
+    if (confirm(msg)) {
       await http.delete(`user/${user.id}`);
-      // store.destroy(user);
+      emit('remove', user.id);
     }
   } catch ({ response }: any) {}
 }
 
-const onEdit = (user: AppUser) => {
+const onEdit = (user: IUser) => {
   router.push({
     name: 'app.user.edit',
     params: { app: route.params.app, id: user.id },
   });
 };
-
-const { data } = await http.get<AppUser[]>('user');
-users.value = data;
-loading.value = false;
 </script>

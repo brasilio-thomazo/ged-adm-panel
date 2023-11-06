@@ -1,77 +1,83 @@
 <template>
-  <div id="user-edit">
-    <form @submit.prevent="save">
-      <div class="form">
-        <div class="line">
-          <label for="name">Tipo:</label>
-          <input type="text" id="name" v-model="form.name" required />
-          <span v-if="error?.errors?.name" class="error">
-            {{ error.errors.name.join(",") }}
-          </span>
-        </div>
-        <div class="buttons">
-          <button type="button" @click="reset">
-            <span class="material-icons">clear</span>
-            <span class="text">Limpar</span>
-          </button>
-          <button type="submit">
-            <span class="material-icons">save</span>
-            <span class="text">Salvar</span>
-          </button>
-        </div>
+  <div v-if="loading" class="loading">aguarde carregando...</div>
+  <form v-else @submit.prevent="onSubmit">
+    <div class="form">
+      <div class="line">
+        <label for="name">Departamento:</label>
+        <input type="text" id="name" v-model="form.name" required />
+        <span v-if="error?.errors?.name" class="error">
+          {{ error.errors.name.join(',') }}
+        </span>
       </div>
-    </form>
-  </div>
+      <div v-if="error?.message" class="line">
+        <span class="error">{{ error.message }}</span>
+      </div>
+      <div class="buttons">
+        <button type="submit">
+          <span class="material-icons">save</span>
+          <span class="text">Salvar</span>
+        </button>
+      </div>
+    </div>
+  </form>
 </template>
 
 <script setup lang="ts">
-import { inject, ref, watchEffect } from "vue";
-import axios from "axios";
-import { useAppStore } from "@/store/app-store";
+import { useRoute, useRouter } from 'vue-router';
+import { useStore } from '@/store/store';
+import { ref } from 'vue';
 
-const props = defineProps<{ data: AppUser | null; id: any }>();
-const emit = defineEmits<{ (e: "close"): void }>();
-const request: AppDocumentTypeRequest = {
-  name: "",
+const form = ref<IDepartmentRequest>({ name: '' });
+const error = ref<IDepartmentReply>();
+const router = useRouter();
+const store = useStore();
+const route = useRoute();
+
+const http = store.http();
+const loading = ref(true);
+const emit = defineEmits<{
+  (e: 'add', payload: IDepartment): void;
+  (e: 'update', payload: IDepartment): void;
+}>();
+
+const onSubmit = async () => {
+  try {
+    if (route.name === 'app.department.edit') {
+      const url = `app/${route.params.app}/department/${route.params.id}`;
+      const { data } = await http.put<IDepartment>(url, form.value);
+      emit('update', data);
+    } else {
+      const url = `app/${route.params.app}/department`;
+      const { data } = await http.post<IDepartment>(url, form.value);
+      emit('add', data);
+    }
+    router.push({
+      name: 'app.department',
+      params: { app: route.params.app },
+    });
+  } catch (err: any) {
+    if (err.response) {
+      error.value = err.response.data;
+    } else {
+      error.value = { message: err.message };
+    }
+  }
 };
 
-const http = inject("http", axios);
-const appStore = useAppStore();
-const error = ref<UserError>();
-const form = ref<AppDocumentTypeRequest>({ ...request });
-const id = ref<string | null>(null);
-
-watchEffect(() => {
-  if (props.data !== null) {
-    form.value = {
-      name: props.data.name,
-    };
-    id.value = props.data.id;
+try {
+  let url;
+  if (route.name === 'app.department.edit') {
+    url = `app/${route.params.app}/department/${route.params.id}`;
+    const { data: _documentTypes } = await http.get<IDocumentType>(url);
+    form.value = { ..._documentTypes };
   }
-});
-
-async function save() {
-  try {
-    const request = { ...form.value };
-
-    if (id.value !== null) {
-      const url = `app/${props.id}/document_type/${id.value}`;
-      const { data } = await http.put<AppDocumentType>(url, request);
-      appStore.updateDocumentTypes(data);
-    } else {
-      const url = `app/${props.id}/document_type`;
-      const { data } = await http.post<AppDocumentType>(url, request);
-      appStore.addDocumentType(data);
-    }
-    reset();
-  } catch ({ response }: any) {
-    console.log(response.data);
-    error.value = response?.data;
+} catch (err: any) {
+  if (err.response) {
+    error.value = err.response.data;
+  } else {
+    error.value = { message: err.message };
   }
-}
-
-function reset() {
-  form.value = { ...request };
-  id.value = null;
+} finally {
+  loading.value = false;
 }
 </script>

@@ -11,19 +11,29 @@ use Illuminate\Support\Facades\Http;
 
 class Controller extends BaseController
 {
-    private function getBaseURL(App $app): string
+    public function getBaseURL(App $app): string
     {
-        $container = config('app.client_container');
+        $container = config('app.kubernetes.client_container');
         $host = ($app->domain ? $app->domain : ($container ? "{$container}-{$app->path}" : "localhost:8010"));
         return "http://{$host}/api";
     }
 
+    public function getHeaders(App $app): array
+    {
+        $token = $this->getToken($app);
+        return [
+            "Accept" => "application/json",
+            "Content-Type" => "application/json",
+            "Authorization" => $token
+        ];
+    }
+
     public function getToken(App $app): string
     {
-        $token = Cache::get("token_" . $app->id);
+        $token = Cache::get("app.{$app->id}.token");
         $baseURL = $this->getBaseURL($app);
         if (!$token) {
-            $password = config("install.system.password", "system");
+            $password = config("app.passwords.system", "system");
             $reply = Http::baseUrl($baseURL)->post("/login", [
                 "username" => "system",
                 "password" => $password,
@@ -31,7 +41,8 @@ class Controller extends BaseController
             ]);
             if (!$reply->successful())
                 throw new AuthenticationException();
-            Cache::put("token_" . $app->id, "Bearer " . $reply->json("token"));
+            $token = "Bearer " . $reply->json("token");
+            Cache::put("app.{$app->id}.token", $token);
         }
         return $token;
     }
@@ -39,6 +50,6 @@ class Controller extends BaseController
     public function getHttp(App $app): PendingRequest
     {
         $token = $this->getToken($app);
-        return Http::withHeader("Authorization", $token)->baseUrl($this->getBaseURL($app));
+        return Http::withHeaders($this->getHeaders($app))->baseUrl($this->getBaseURL($app));
     }
 }

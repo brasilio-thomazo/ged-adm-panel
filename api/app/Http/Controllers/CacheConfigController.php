@@ -23,13 +23,11 @@ class CacheConfigController extends Controller
     {
         $custom = $request->get('custom', false);
         $driver = config("cache.default");
-        $section = "cache.stores.{$driver}";
         $save = [
-            'app_id' => $request->get('app_id'),
             'custom' => $custom,
             'driver' => $custom ? $request->get('driver') : $driver,
-            'host' => $custom ? $request->get('host') : config("{$section}.servers.0.host"),
-            'port' => $custom ? $request->get('port') : config("{$section}.servers.0.port")
+            'host' => $custom ? $request->get('host') : config("database.redis.cache.host"),
+            'port' => $custom ? $request->get('port') : config("database.redis.cache.port")
         ];
         $cacheConfig = CacheConfig::create($save);
         return response()->json($cacheConfig);

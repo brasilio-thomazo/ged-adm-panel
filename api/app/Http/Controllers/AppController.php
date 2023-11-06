@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\App;
-use App\Utils\Docker;
 use App\Utils\Kubernetes;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\Yaml\Yaml;
-use Illuminate\Support\Facades\URL;
 use App\Http\Requests\StoreAppRequest;
 use App\Http\Requests\UpdateAppRequest;
 
@@ -22,7 +20,7 @@ class AppController extends Controller
 
     private function generatePort(): int
     {
-        [$min, $max] = explode('-', config('app.node_ports', '30000-32767'));
+        [$min, $max] = explode('-', config('app.kubernetes.node_ports', '30000-32767'));
         $ports = App::get(['grpc_port'])->toArray();
         do {
             $port = rand($min, $max);
@@ -91,9 +89,9 @@ class AppController extends Controller
     {
         $update = [];
         if (!$app->installed_at) {
-            $update['installed_at'] = now();
+            $update['installed_at'] = now()->timestamp;
         }
-        $update['started_at'] = now();
+        $update['started_at'] = now()->timestamp;
         $app->update($update);
         return response($app);
     }
@@ -126,8 +124,6 @@ class AppController extends Controller
             'FILESYSTEM_DISK' => 'local',
             'AWS_REGION' => $app->aws_region,
             'AWS_BUCKET' => $app->aws_bucket,
-            'FPM_HOST' => "ged-client-fpm-" . $app->path . ':9000',
-            'VITE_API_URL' => '/api',
         ];
     }
 
@@ -136,15 +132,14 @@ class AppController extends Controller
         $key = sprintf('base64:%s', base64_encode(openssl_random_pseudo_bytes(32)));
         $useCustom = $request->get('use_custom', false);
         $useAwsS3 = $request->get('use_aws_s3', false);
-
-        $cacheDriver = $app->cacheConfig->driver;
         $databaseDriver = $app->databaseConfig->driver;
         $section = "database.connections.{$databaseDriver}";
 
         return [
             'APP_KEY' => $key,
-            'SYSTEM_PASSWORD' => config('app.system_password'),
-            'ADMIN_PASSWORD' => config('app.admin_password'),
+            'PASSWORD_SYSTEM' => config('app.passwords.system'),
+            'PASSWORD_ADMIN' => config('app.passwords.admin'),
+            'PASSWORD_USER' => config('app.passwords.user'),
             'DB_SUPER_USERNAME' => $useCustom ? $request->super_username : config($section . ".super.username"),
             'DB_SUPER_PASSWORD' => $useCustom ? $request->super_password : config($section . ".super.password"),
             'DB_USERNAME' => $useCustom ? $request->db_username : config($section . ".username"),
@@ -153,7 +148,7 @@ class AppController extends Controller
             'REDIS_PASSWORD' => $useCustom ? $request->cache_password : config("database.redis.cache.password"),
             'AWS_ACCESS_KEY_ID' => $useAwsS3 ? $request->aws_key : config('filesystems.disks.s3.key'),
             'AWS_SECRET_ACCESS_KEY' => $useAwsS3 ? $request->aws_secret : config('filesystems.disks.s3.secret'),
-            'SUBSCRIBE_URL' => $app->url_subscribe,
+            'URL_SUBSCRIBE' => $app->url_subscribe,
         ];
     }
 
@@ -165,6 +160,10 @@ class AppController extends Controller
         $nginxName = "ged-client-nginx-" . $app->path;
 
         $config_map = Kubernetes::configMap($name, $this->makeEnvironments($app));
+        $nginxConfigMap = Kubernetes::configMap($nginxName, [
+            'FPM_HOST' => 'ged-client-fpm-' . $app->path . ':9000',
+            'VITE_API_URL' => '/api',
+        ]);
         $secret = Kubernetes::secret($name, $this->makeSecrets($app, $request));
 
         $mount = [
@@ -175,12 +174,12 @@ class AppController extends Controller
         ];
 
         $volume = [
-            Kubernetes::volume('storage', config('app.pvc.images'))
+            Kubernetes::volume('storage', config('app.kubernetes.persistent_volume_clain'))
         ];
 
         $fpmContainer = Kubernetes::container($fpmName, "devoptimus/ged-client-fpm", [9000], $mount, [$name], [$name]);
         $fpmService = Kubernetes::service($fpmName, [['port' => 9000, 'targetPort' => 9000]]);
-        $nginxContainer = Kubernetes::container($nginxName, "devoptimus/ged-client-nginx", [80], null, [$name], [$name]);
+        $nginxContainer = Kubernetes::container($nginxName, "devoptimus/ged-client-nginx", [80], null, [$nginxName]);
         $nginxService = Kubernetes::service($nginxName, [['port' => 80, 'targetPort' => 80]], "LoadBalancer");
         $grpcContainer = Kubernetes::container($grpcName, "devoptimus/ged-grpc-server", [50051], $mount, [$name], [$name]);
         $grpcService = Kubernetes::service($grpcName, [['port' => 50051, 'targetPort' => 50051, 'nodePort' => $app->grpc_port]], "NodePort");
@@ -191,7 +190,7 @@ class AppController extends Controller
         $nginx = Kubernetes::deployment($nginxName, [$nginxContainer]);
         $grpc = Kubernetes::deployment($grpcName, [$grpcContainer], $volume);
 
-        $arr = [$config_map, $secret, $fpm, $fpmService, $nginx, $nginxService, $grpc, $grpcService];
+        $arr = [$config_map, $nginxConfigMap, $secret, $fpm, $fpmService, $nginx, $nginxService, $grpc, $grpcService];
         $all = [];
         foreach ($arr as $data) {
             $all[] = Yaml::dump($data, 10, 2, Yaml::DUMP_NUMERIC_KEY_AS_STRING);

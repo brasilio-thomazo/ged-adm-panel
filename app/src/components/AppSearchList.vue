@@ -3,13 +3,15 @@
     <table>
       <thead>
         <tr>
-          <th>Tipo do documento</th>
+          <th>Pesquisa</th>
+          <th>Campos</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="row in rows">
           <td>{{ row.name }}</td>
+          <td>{{ fields(row) }}</td>
           <td>
             <div class="buttons">
               <button @click="onEdit(row)" type="button" class="icon">
@@ -34,7 +36,7 @@ import { computed } from 'vue';
 import _ from 'lodash';
 
 const emit = defineEmits<{ (e: 'remove', id: number): void }>();
-const props = defineProps<{ rows: IDocumentType[] }>();
+const props = defineProps<{ rows: ISearch[] }>();
 const rows = computed(() => props.rows);
 const router = useRouter();
 const route = useRoute();
@@ -42,9 +44,29 @@ const store = useStore();
 
 const http = store.http();
 
-const onEdit = (payload: IDocumentType) => {
+const tr = {
+  department: 'Departamento',
+  document_type: 'Tipo de documento',
+  comment: 'Comentário',
+  identity: 'Identidade',
+  name: 'Nome',
+  storage: 'Armazenamento',
+  code: 'Código',
+};
+
+const fields = (payload: ISearch) => {
+  const fields: string[] = [];
+  _.map(payload.show_field, (value, key: keyof typeof tr) => {
+    if (value) {
+      fields.push(tr[key]);
+    }
+  });
+  return fields.join(' | ');
+};
+
+const onEdit = (payload: ISearch) => {
   router.push({
-    name: 'app.document-type.edit',
+    name: 'app.search.edit',
     params: {
       app: route.params.app,
       id: payload.id,
@@ -52,10 +74,11 @@ const onEdit = (payload: IDocumentType) => {
   });
 };
 
-const onDelete = async (payload: IDocumentType) => {
+const onDelete = async (payload: ISearch) => {
   try {
-    if (confirm(`Tem certeza que deseja remover o tipo ${payload.name}`)) {
-      const url = `app/${route.params.app}/document_type/${payload.id}`;
+    const msg = `Tem certeza que deseja remover a pesquisa ${payload.name}`;
+    if (confirm(msg)) {
+      const url = `app/${route.params.app}/search/${payload.id}`;
       await http.delete(url);
       emit('remove', payload.id);
     }

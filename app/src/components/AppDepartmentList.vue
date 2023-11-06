@@ -3,7 +3,7 @@
     <table>
       <thead>
         <tr>
-          <th>Tipo do documento</th>
+          <th>Departamento</th>
           <th></th>
         </tr>
       </thead>
@@ -34,7 +34,7 @@ import { computed } from 'vue';
 import _ from 'lodash';
 
 const emit = defineEmits<{ (e: 'remove', id: number): void }>();
-const props = defineProps<{ rows: IDocumentType[] }>();
+const props = defineProps<{ rows: IDepartment[] }>();
 const rows = computed(() => props.rows);
 const router = useRouter();
 const route = useRoute();
@@ -42,9 +42,9 @@ const store = useStore();
 
 const http = store.http();
 
-const onEdit = (payload: IDocumentType) => {
+const onEdit = (payload: IDepartment) => {
   router.push({
-    name: 'app.document-type.edit',
+    name: 'app.department.edit',
     params: {
       app: route.params.app,
       id: payload.id,
@@ -52,10 +52,11 @@ const onEdit = (payload: IDocumentType) => {
   });
 };
 
-const onDelete = async (payload: IDocumentType) => {
+const onDelete = async (payload: IDepartment) => {
   try {
-    if (confirm(`Tem certeza que deseja remover o tipo ${payload.name}`)) {
-      const url = `app/${route.params.app}/document_type/${payload.id}`;
+    const msg = `Tem certeza que deseja remover o departamento ${payload.name}`;
+    if (confirm(msg)) {
+      const url = `app/${route.params.app}/department/${payload.id}`;
       await http.delete(url);
       emit('remove', payload.id);
     }
