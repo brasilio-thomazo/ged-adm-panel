@@ -24,6 +24,7 @@ class CacheConfigController extends Controller
         $custom = $request->get('custom', false);
         $driver = config("cache.default");
         $save = [
+            'app_id' => $request->get('app_id'),
             'custom' => $custom,
             'driver' => $custom ? $request->get('driver') : $driver,
             'host' => $custom ? $request->get('host') : config("database.redis.cache.host"),
