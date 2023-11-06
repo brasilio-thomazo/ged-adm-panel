@@ -24,3 +24,5 @@ spec:
           env:
             - name: FPM_HOST
               value: "ged-admin-fpm:9000"
+            - name: VITE_API_URL
+              value: /api

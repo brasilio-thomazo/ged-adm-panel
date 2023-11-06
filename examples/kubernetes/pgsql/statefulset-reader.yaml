@@ -24,9 +24,9 @@ spec:
               value: slave
           envFrom:
             - secretRef:
-                name: "postgres-secret"
+                name: "postgres"
             - configMapRef:
-                name: "postgres-config-map"
+                name: "postgres"
           volumeMounts:
             - name: storage
               mountPath: /var/lib/postgresql

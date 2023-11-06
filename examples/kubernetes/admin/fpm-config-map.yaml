@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ged-admin-config
+  name: ged-admin
 data:
   APP_DEBUG: "false"
-  APP_ENV: local
-  APP_NAME: admin-panel
+  APP_ENV: production
+  APP_NAME: "ADM Panel"
 
   DB_CONNECTION: pgsql
   DB_WRITER_HOST: postgres-writer
@@ -16,8 +16,6 @@ data:
 
   REDIS_HOST: redis
   REDIS_PORT: "6379"
-
-  MEMCACHED_HOST: memchached
 
   LOG_CHANNEL: stdout
   LOG_LEVEL: info
@@ -30,14 +28,14 @@ data:
   QUEUE_CONNECTION: redis
 
   FILESYSTEM_DISK: local
-
-  K8S_PVC_IMAGES: images-pvc
-  CLIENT_DOMAIN: optimus.dev.br
-  GRPC_PORT: "50051"
   
   AWS_REGION: sa-east-1
   AWS_DEFAULT_REGION: sa-east-1
   AWS_BUCKET: ged-image-store
 
-  VITE_API_URL: /api
+  DOMAIN_NAME: optimus.dev.br
+
+  CLIENT_PVC_IMAGES: images-pvc
   CLIENT_CONTAINER: ged-client-nginx
+
+  NODE_PORTS: "30000-32767"

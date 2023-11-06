@@ -16,9 +16,9 @@ spec:
           image: devoptimus/ged-admin-cli
           envFrom:
             - configMapRef:
-                name: "ged-admin-config"
+                name: "ged-admin"
             - secretRef:
-                name: "ged-admin-secret"
+                name: "ged-admin"
           command:
             - php
           args:
