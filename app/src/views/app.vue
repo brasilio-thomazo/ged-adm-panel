@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TopBarApp path="app" />
+    <TopBar path="app" />
     <div class="view-content">
       <template v-if="isFormNew">
         <AppShow v-if="app" :app="app" />
@@ -33,17 +33,17 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
-import AppForm from '@/components/AppForm.vue';
-import AppList from '@/components/AppList.vue';
-import AppShow from '@/components/AppShow.vue';
-import { computed, ref, watchEffect } from 'vue';
 import DatabaseConfigForm from '@/components/DatabaseConfigForm.vue';
 import DatabaseConfigShow from '@/components/DatabaseConfigShow.vue';
 import CacheConfigForm from '@/components/CacheConfigForm.vue';
 import CacheConfigShow from '@/components/CacheConfigShow.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { computed, ref, watchEffect } from 'vue';
+import AppForm from '@/components/AppForm.vue';
+import AppList from '@/components/AppList.vue';
+import AppShow from '@/components/AppShow.vue';
+import TopBar from '@/components/TopBar.vue';
 import { useStore } from '@/store/store';
-import TopBarApp from '@/components/TopBarApp.vue';
 
 const app = ref<App>();
 

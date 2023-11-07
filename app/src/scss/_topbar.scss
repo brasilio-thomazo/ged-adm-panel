@@ -1,0 +1,64 @@
+$increment: 12px;
+#topbar {
+  ul {
+    overflow: hidden;
+    display: inline-flex;
+    list-style: none;
+    padding: 0px 0;
+    background-color: var(--secondary);
+    width: 100%;
+    margin: 5px 0;
+    outline: 1px solid #999;
+    li {
+      position: relative;
+      outline: none;
+      transform: translateX(-15%);
+      clip-path: polygon(92% 0, 100% 50%, 92% 100%, 0 100%, 0 0);
+      width: 130px;
+      height: 40px;
+      background-color: #999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      a {
+        font-size: 0.9rem;
+        display: flex;
+        width: 128px;
+        height: 100%;
+        top: 0px;
+        left: 0px;
+        background-color: var(--secondary);
+        position: absolute;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        clip-path: polygon(92% 0, 100% 50%, 92% 100%, 0 100%, 0 0);
+        &:hover {
+          color: var(--color);
+        }
+        .text {
+          max-width: 100px;
+          display: flex;
+        }
+      }
+      @for $i from 0 through 10 {
+        &:nth-child(#{$i + 1}) {
+          transform: translateX(-#{$increment * $i});
+          z-index: 10 - $i;
+        }
+      }
+      &:last-child {
+        a {
+          background-color: var(--link-active);
+          color: #fff;
+        }
+      }
+      &:hover {
+        a {
+          background-color: var(--link-active);
+          color: #fff;
+        }
+      }
+    }
+  }
+}

@@ -1,71 +1,44 @@
 .left-bar {
   background-color: var(--secondary);
-  width: 150px;
+  width: 80px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   row-gap: 5px;
-  padding-left: 10px;
   position: sticky;
   top: 0px;
   height: 100vh;
+  padding: 10px;
 
-  .brand {
-    font-family: Arial, Helvetica, sans-serif;
-  }
-
-  ul {
-    list-style: none;
-    line-height: 2em;
-    padding: 5px;
-    li {
-      position: relative;
-      padding-left: 0.5em;
-      a {
-        font-size: 1rem;
-      }
-      // outline: 1px solid var(--boder-color);
-      &::before {
-        position: absolute;
-        left: -5px;
-        top: 0px;
-        border-left: 2px solid var(--boder-color);
-        border-bottom: 2px solid var(--boder-color);
-        content: "";
-        width: 0.5em;
-        height: 1em;
-      }
-      &::after {
-        position: absolute;
-        left: -5px;
-        bottom: 0px;
-        border-left: 2px solid var(--boder-color);
-        content: "";
-        width: 0.5em;
-        height: 1em;
-      }
-      &:last-child::after {
-        display: none;
-      }
-    }
-  }
-
-  details {
-    summary {
-      cursor: pointer;
-      list-style-type: none;
-      &::marker,
-      &::-webkit-details-marker {
-        display: none;
-      }
-    }
-  }
-
-  .brand {
+  a,
+  button {
     display: flex;
-    height: 30px;
-    align-items: center;
+    flex-direction: column;
+    border: none;
+    padding: 0;
+    width: 100%;
+    height: auto;
+    text-align: center;
+    .material-icons {
+      font-size: 1.6rem;
+    }
+    .text {
+      font-size: 0.7rem;
+    }
+  }
+
+  ul,
+  .footer {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .active {
     a {
-      font-weight: bold;
+      color: var(--link-active);
     }
   }
 }

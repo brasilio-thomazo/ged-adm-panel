@@ -7,13 +7,11 @@
         </RouterLink>
       </li>
       <li>
-        <span class="icon material-icons">double_arrow</span>
         <RouterLink :to="`/app/${route.params.app}`">
           <span class="text">{{ path }}</span>
         </RouterLink>
       </li>
       <li v-for="nav in list">
-        <span class="icon material-icons">double_arrow</span>
         <RouterLink :to="nav.url">
           <span class="text">{{ nav.label }}</span>
         </RouterLink>

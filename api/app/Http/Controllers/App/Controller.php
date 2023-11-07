@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\App;
 
 use App\Http\Controllers\Controller as BaseController;
-use App\Models\App;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use App\Models\App;
 
 class Controller extends BaseController
 {

@@ -1,4 +1,5 @@
 <template>
+  <AppBar :app="app" />
   <div class="show">
     <fieldset>
       <legend>Aplicação</legend>
@@ -34,6 +35,7 @@
 </template>
 <script lang="ts" setup>
 import { computed } from 'vue';
+import AppBar from './AppBar.vue';
 const props = defineProps<{ app: App }>();
 const app = computed(() => props.app);
 </script>

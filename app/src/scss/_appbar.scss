@@ -1,0 +1,19 @@
+#appbar {
+  ul {
+    display: flex;
+    list-style: none;
+    flex-direction: row;
+    gap: 5px;
+    background-color: var(--secondary);
+    padding: 5px;
+
+    li {
+      a {
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--boder-color);
+        padding: 2px 10px;
+      }
+    }
+  }
+}
