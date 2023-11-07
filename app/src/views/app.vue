@@ -2,24 +2,24 @@
   <div>
     <TopBarApp path="app" />
     <div class="view-content">
-      <div v-if="isFormNew">
+      <template v-if="isFormNew">
         <AppShow v-if="app" :app="app" />
         <AppForm v-else @update="update" />
         <DatabaseConfigShow v-if="app && app.database_config" :app="app" />
         <DatabaseConfigForm v-else-if="app" :app="app" @update="update" />
         <CacheConfigShow v-if="app && app.cache_config" :app="app" />
         <CacheConfigForm v-else-if="app" :app="app" @update="update" />
-      </div>
-      <div v-else-if="route.name === 'app.edit'">
+      </template>
+      <template v-else-if="route.name === 'app.edit'">
         <AppForm @update="update" />
         <DatabaseConfigForm v-if="app" :app="app" @update="update" />
         <CacheConfigForm v-if="app" :app="app" @update="update" />
-      </div>
-      <div class="show" v-else-if="route.name === 'app.show'">
+      </template>
+      <template class="show" v-else-if="route.name === 'app.show'">
         <AppShow v-if="app" :app="app" />
         <DatabaseConfigShow v-if="app && app.database_config" :app="app" />
         <CacheConfigShow v-if="app && app.cache_config" :app="app" />
-      </div>
+      </template>
       <AppList v-else>
         <div class="buttons">
           <button @click="router.push({ name: 'app.new' })" type="button">

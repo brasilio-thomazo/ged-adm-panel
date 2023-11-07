@@ -42,20 +42,6 @@
             {{ reply.errors.port.join(';') }}
           </div>
         </div>
-        <div v-if="form.custom" class="line">
-          <label for="username">Usuário:</label>
-          <input type="text" id="username" v-model="form.username" />
-          <div v-if="reply.errors?.username" class="error">
-            {{ reply.errors.username.join(';') }}
-          </div>
-        </div>
-        <div v-if="form.custom" class="line">
-          <label for="password">Senha:</label>
-          <input type="password" id="password" v-model="form.password" />
-          <div v-if="reply.errors?.password" class="error">
-            {{ reply.errors.password.join(';') }}
-          </div>
-        </div>
         <div class="buttons">
           <button type="submit" class="button">
             <span class="material-icons">save</span>

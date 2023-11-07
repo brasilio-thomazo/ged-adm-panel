@@ -20,7 +20,7 @@ class Controller extends BaseController
 
     public function getHeaders(App $app): array
     {
-        $token = $this->getToken($app);
+        $token = Cache::get("app.{$app->id}.token");
         return [
             "Accept" => "application/json",
             "Content-Type" => "application/json",
@@ -28,28 +28,45 @@ class Controller extends BaseController
         ];
     }
 
+    public function login(App $app)
+    {
+        $credentials = [
+            'username' => 'system',
+            'password' => config("app.passwords.system", "system"),
+            'device_name' => 'adm-panel',
+        ];
+        $baseURL = $this->getBaseURL($app);
+        $headers = $this->getHeaders($app);
+        $http = Http::baseUrl($baseURL)->withHeaders($headers)->post("/login", $credentials);
+        if (!$http->successful())
+            throw new AuthenticationException($http->json("message"));
+        $token = "Bearer " . $http->json("token");
+        Cache::put("app.{$app->id}.token", $token);
+    }
+
+    public function me(App $app)
+    {
+        $baseURL = $this->getBaseURL($app);
+        $headers = $this->getHeaders($app);
+        $http = Http::baseUrl($baseURL)->withHeaders($headers)->get("/me");
+        return $http->status();
+    }
+
     public function getToken(App $app): string
     {
         $token = Cache::get("app.{$app->id}.token");
-        $baseURL = $this->getBaseURL($app);
         if (!$token) {
-            $password = config("app.passwords.system", "system");
-            $reply = Http::baseUrl($baseURL)->post("/login", [
-                "username" => "system",
-                "password" => $password,
-                "device_name" => "adm-panel"
-            ]);
-            if (!$reply->successful())
-                throw new AuthenticationException();
-            $token = "Bearer " . $reply->json("token");
-            Cache::put("app.{$app->id}.token", $token);
+            $this->login($app);
+            $token = Cache::get("app.{$app->id}.token");
         }
         return $token;
     }
 
     public function getHttp(App $app): PendingRequest
     {
-        $token = $this->getToken($app);
+        if ($this->me($app) === 401) {
+            $this->login($app);
+        }
         return Http::withHeaders($this->getHeaders($app))->baseUrl($this->getBaseURL($app));
     }
 }
