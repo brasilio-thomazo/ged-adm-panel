@@ -1,18 +1,22 @@
 <template>
-  <div class="views">
-    <AppTopBar />
-    <div v-if="loading" class="loading">aguarde carregando...</div>
-    <div v-else class="view-content">
-      <AppUserForm v-if="isForm" @add="add" @update="update" />
-      <AppUserList v-else :rows="rows" @remove="remove">
-        <div class="buttons">
-          <button @click="create" type="button">
-            <span class="material-icons">add</span>
-            <span class="text">Novo usuário</span>
-          </button>
-        </div>
-      </AppUserList>
-    </div>
+  <div>
+    <template v-if="loading">
+      <Spinner />
+    </template>
+    <template v-else>
+      <AppTopBar />
+      <div class="view-content">
+        <AppUserForm v-if="isForm" @add="add" @update="update" />
+        <AppUserList v-else :rows="rows" @remove="remove">
+          <div class="buttons">
+            <button @click="create" type="button">
+              <span class="material-icons">add</span>
+              <span class="text">Novo usuário</span>
+            </button>
+          </div>
+        </AppUserList>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -21,8 +25,9 @@ import AppUserList from '@/components/AppUserList.vue';
 import AppUserForm from '@/components/AppUserForm.vue';
 import AppTopBar from '@/components/AppTopBar.vue';
 import { useRoute, useRouter } from 'vue-router';
+import Spinner from '@/components/Spinner.vue';
 import { useStore } from '@/store/store';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import _ from 'lodash';
 
 const route = useRoute();
@@ -63,16 +68,19 @@ const add = (payload: IUser) => {
   rows.value.unshift(payload);
 };
 
-try {
-  const url = `app/${route.params.app}/user`;
-  const { data } = await http.get<IUser[]>(url);
-  rows.value = data;
-  loading.value = false;
-} catch (err: any) {
-  if (err.response) {
-    console.log(err.response.data);
-  } else {
-    console.log(err.message);
+onMounted(async () => {
+  try {
+    const url = `app/${route.params.app}/user`;
+    const { data } = await http.get<IUser[]>(url);
+    rows.value = data;
+  } catch (err: any) {
+    if (err.response) {
+      console.log(err.response.data);
+    } else {
+      console.log(err.message);
+    }
+  } finally {
+    loading.value = false;
   }
-}
+});
 </script>

@@ -14,7 +14,7 @@
       </li>
     </ul>
     <div class="footer">
-      <button>
+      <button type="button" @click="logout">
         <span class="material-icons">logout</span>
         <span class="text">sair</span>
       </button>
@@ -22,12 +22,15 @@
   </nav>
 </template>
 <script setup lang="ts">
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from '@/store/store';
 import { ref, watchEffect } from 'vue';
-import { useRoute } from 'vue-router';
+
 const store = useStore();
 const route = useRoute();
+const router = useRouter();
 const name = ref(route.name?.toString() || 'home');
+const username = ref('Minha conta');
 
 const isActive = (payload: string) => {
   const re = new RegExp(`^${payload}(\..*|)`);
@@ -43,7 +46,7 @@ const navs = ref([
   },
   {
     icon: 'account_box',
-    text: 'Minha conta',
+    text: username,
     to: '/profile',
     name: 'profile',
   },
@@ -75,5 +78,13 @@ const navs = ref([
 
 watchEffect(() => {
   name.value = route.name?.toString() || 'home';
+  if (store.user)
+    username.value = store.user.name.split(' ')[0] || store.user.name;
 });
+
+const logout = () => {
+  localStorage.clear();
+  store.user = undefined;
+  router.push({ name: 'login' });
+};
 </script>

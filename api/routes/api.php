@@ -3,7 +3,13 @@
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [\App\Http\Controllers\ProfileController::class, "login"])->name("api.login");
-Route::get('me', [\App\Http\Controllers\ProfileController::class, "me"])->middleware("auth:sanctum");
+Route::get('me', [\App\Http\Controllers\ProfileController::class, "me"])
+    ->middleware("auth:sanctum")->name("api.me");
+Route::post('me', [\App\Http\Controllers\ProfileController::class, "changePassword"])
+    ->middleware("auth:sanctum")->name("api.change-password");
+Route::put('me', [\App\Http\Controllers\ProfileController::class, "update"])
+    ->middleware("auth:sanctum")->name("api.profile.update");
+
 /**
  * Routes for manipule all models
  */

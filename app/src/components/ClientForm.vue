@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="loading">aguarde carregando...</div>
+  <Spinner v-if="loading" />
   <form v-else @submit.prevent="onSubmit">
     <div class="form">
       <div class="line">
@@ -106,9 +106,10 @@
 <script setup lang="ts">
 import { maskDetail, clientRequest as request } from '@/provider';
 import { useRoute, useRouter } from 'vue-router';
+import Spinner from '@/components/Spinner.vue';
 import { vMaska, MaskaDetail } from 'maska';
 import { useStore } from '@/store/store';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const document = ref<MaskaDetail>({ ...maskDetail });
 const phone = ref<MaskaDetail>({ ...maskDetail });
@@ -152,13 +153,16 @@ const onSubmit = async () => {
   }
 };
 
-if (route.name === 'client.edit') {
+onMounted(async () => {
   try {
-    const { data } = await http.get<Client>(`client/${route.params.id}`);
-    form.value = { ...data };
-    loading.value = false;
+    if (route.name === 'client.edit') {
+      const { data } = await http.get<Client>(`client/${route.params.id}`);
+      form.value = { ...data };
+    }
   } catch (ex: any) {
     router.push({ name: 'not_found' });
+  } finally {
+    loading.value = false;
   }
-} else loading.value = false;
+});
 </script>

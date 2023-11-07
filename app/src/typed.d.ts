@@ -1,6 +1,39 @@
 declare global {
+  type IProfileRequest = {
+    name: string;
+    identity: string;
+    role: string;
+    phone: string;
+    email: string;
+  };
 
-  type SlotType = "create" | "edit" | "show" | "list" | "error";
+  type IPasswordRequest = {
+    current_password: string;
+    password: string;
+    password_confirmation: string;
+  };
+
+  type IProfileReply = {
+    message?: string;
+    errors?: {
+      name?: string[];
+      identity?: string[];
+      role?: string[];
+      phone?: string[];
+      email?: string[];
+    };
+  };
+
+  type IPasswordReply = {
+    message?: string;
+    errors?: {
+      current_password?: string[];
+      password?: string[];
+      password_confirmation?: string[];
+    };
+  };
+
+  type SlotType = 'create' | 'edit' | 'show' | 'list' | 'error';
   /**
    * Authentication type define
    */
@@ -25,7 +58,7 @@ declare global {
   /**
    * Privilege type deine
    */
-  type Permission = "r" | "rw" | undefined;
+  type Permission = 'r' | 'rw' | undefined;
   /**
    * Client type define
    */
@@ -35,7 +68,7 @@ declare global {
     identity: string;
     email: string;
     phone: string;
-    scope: "client" | "provider";
+    scope: 'client' | 'provider';
     manager: string;
     role: string;
     created_at: string;
@@ -47,7 +80,7 @@ declare global {
     identity: string;
     email: string;
     phone: string;
-    scope: "client" | "provider";
+    scope: 'client' | 'provider';
     manager: string;
     role: string;
   }

@@ -1,28 +1,33 @@
 <template>
-  <div class="views">
-    <TopBar path="group" />
-    <div v-if="loading" class="loading">aguarde carregando...</div>
-    <div v-else class="view-content">
-      <GroupForm v-if="isForm" @add="add" @update="update" />
-      <GroupList v-else :rows="rows" @remove="remove">
-        <div class="buttons">
-          <button @click="router.push({ name: 'group.new' })" type="button">
-            <span class="material-icons">add</span>
-            <span class="text">Novo grupo</span>
-          </button>
-        </div>
-      </GroupList>
-    </div>
+  <div>
+    <template v-if="loading">
+      <Spinner />
+    </template>
+    <template v-else>
+      <TopBar path="group" />
+      <div class="view-content">
+        <GroupForm v-if="isForm" @add="add" @update="update" />
+        <GroupList v-else :rows="rows" @remove="remove">
+          <div class="buttons">
+            <button @click="router.push({ name: 'group.new' })" type="button">
+              <span class="material-icons">add</span>
+              <span class="text">Novo grupo</span>
+            </button>
+          </div>
+        </GroupList>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import GroupList from '@/components/GroupList.vue';
 import GroupForm from '@/components/GroupForm.vue';
-import TopBar from '@/components/TopBar.vue';
 import { useRoute, useRouter } from 'vue-router';
+import { computed, onMounted, ref } from 'vue';
+import Spinner from '@/components/Spinner.vue';
+import TopBar from '@/components/TopBar.vue';
 import { useStore } from '@/store/store';
-import { computed, ref } from 'vue';
 import _ from 'lodash';
 
 const route = useRoute();
@@ -55,15 +60,18 @@ const add = (payload: Group) => {
   rows.value.unshift(payload);
 };
 
-try {
-  const { data } = await http.get<Group[]>('group');
-  rows.value = data;
-  loading.value = false;
-} catch (err: any) {
-  if (err.response) {
-    console.log(err.response.data);
-  } else {
-    console.log(err.message);
+onMounted(async () => {
+  try {
+    const { data } = await http.get<Group[]>('group');
+    rows.value = data;
+  } catch (err: any) {
+    if (err.response) {
+      console.log(err.response.data);
+    } else {
+      console.log(err.message);
+    }
+  } finally {
+    loading.value = false;
   }
-}
+});
 </script>

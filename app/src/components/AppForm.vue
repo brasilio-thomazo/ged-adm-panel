@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="loading">aguarde carregando...</div>
+  <Spinner v-if="loading" />
   <form v-else @submit.prevent="save">
     <div class="form">
       <fieldset>
@@ -74,6 +74,7 @@
 <script setup lang="ts">
 import { appRequest as request } from '@/provider';
 import { useRoute, useRouter } from 'vue-router';
+import Spinner from '@/components/Spinner.vue';
 import { useStore } from '@/store/store';
 import { ref } from 'vue';
 

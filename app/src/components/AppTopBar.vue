@@ -64,7 +64,4 @@ const getNavigation = () => {
 
 const { data } = await http.get<App>(`app/${route.params.app}`);
 path.value = data.path;
-
-if (route.name === 'app.group.edit') {
-}
 </script>

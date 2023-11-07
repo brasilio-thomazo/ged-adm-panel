@@ -1,18 +1,22 @@
 <template>
-  <div class="views">
-    <AppTopBar />
-    <div v-if="loading" class="loading">aguarde carregando...</div>
-    <div v-else class="view-content">
-      <AppDepartmentForm v-if="isForm" @add="add" @update="update" />
-      <AppDepartmentList v-else :rows="rows" @remove="remove">
-        <div class="buttons">
-          <button @click="create" type="button">
-            <span class="material-icons">add</span>
-            <span class="text">Novo departamento</span>
-          </button>
-        </div>
-      </AppDepartmentList>
-    </div>
+  <div>
+    <template v-if="loading">
+      <Spinner />
+    </template>
+    <template v-else>
+      <AppTopBar />
+      <div class="view-content">
+        <AppDepartmentForm v-if="isForm" @add="add" @update="update" />
+        <AppDepartmentList v-else :rows="rows" @remove="remove">
+          <div class="buttons">
+            <button @click="create" type="button">
+              <span class="material-icons">add</span>
+              <span class="text">Novo departamento</span>
+            </button>
+          </div>
+        </AppDepartmentList>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -21,8 +25,9 @@ import AppDepartmentList from '@/components/AppDepartmentList.vue';
 import AppDepartmentForm from '@/components/AppDepartmentForm.vue';
 import AppTopBar from '@/components/AppTopBar.vue';
 import { useRoute, useRouter } from 'vue-router';
+import { computed, onMounted, ref } from 'vue';
+import Spinner from '@/components/Spinner.vue';
 import { useStore } from '@/store/store';
-import { computed, ref } from 'vue';
 import _ from 'lodash';
 
 const route = useRoute();
@@ -63,16 +68,19 @@ const add = (payload: IDepartment) => {
   rows.value.unshift(payload);
 };
 
-try {
-  const url = `app/${route.params.app}/department`;
-  const { data } = await http.get<IDepartment[]>(url);
-  rows.value = data;
-  loading.value = false;
-} catch (err: any) {
-  if (err.response) {
-    console.log(err.response.data);
-  } else {
-    console.log(err.message);
+onMounted(async () => {
+  try {
+    const url = `app/${route.params.app}/department`;
+    const { data } = await http.get<IDepartment[]>(url);
+    rows.value = data;
+  } catch (err: any) {
+    if (err.response) {
+      console.log(err.response.data);
+    } else {
+      console.log(err.message);
+    }
+  } finally {
+    loading.value = false;
   }
-}
+});
 </script>

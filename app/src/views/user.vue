@@ -1,28 +1,33 @@
 <template>
   <div>
-    <TopBar path="user" />
-    <div v-if="loading">Carregando aguarde...</div>
-    <div v-else class="view-content">
-      <UserForm v-if="isForm" @add="add" @update="update" />
-      <UserList v-else :rows="users" @remove="remove">
-        <div class="buttons">
-          <button @click="router.push({ name: 'user.new' })" type="button">
-            <span class="material-icons">add</span>
-            <span class="text">Novo usuário</span>
-          </button>
-        </div>
-      </UserList>
-    </div>
+    <template v-if="loading">
+      <Spinner />
+    </template>
+    <template v-else>
+      <TopBar path="user" />
+      <div class="view-content">
+        <UserForm v-if="isForm" @add="add" @update="update" />
+        <UserList v-else :rows="users" @remove="remove">
+          <div class="buttons">
+            <button @click="router.push({ name: 'user.new' })" type="button">
+              <span class="material-icons">add</span>
+              <span class="text">Novo usuário</span>
+            </button>
+          </div>
+        </UserList>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import UserList from '@/components/UserList.vue';
 import UserForm from '@/components/UserForm.vue';
-import TopBar from '@/components/TopBar.vue';
 import { useRoute, useRouter } from 'vue-router';
+import Spinner from '@/components/Spinner.vue';
+import { computed, onMounted, ref } from 'vue';
+import TopBar from '@/components/TopBar.vue';
 import { useStore } from '@/store/store';
-import { computed, ref } from 'vue';
 import _ from 'lodash';
 
 const route = useRoute();
@@ -54,7 +59,13 @@ const add = (user: User) => {
   users.value.unshift(user);
 };
 
-const { data } = await http.get<User[]>('user');
-users.value = data;
-loading.value = false;
+onMounted(async () => {
+  try {
+    const { data } = await http.get<User[]>('user');
+    users.value = data;
+  } catch (err: any) {
+    console.error(err);
+  }
+  loading.value = false;
+});
 </script>

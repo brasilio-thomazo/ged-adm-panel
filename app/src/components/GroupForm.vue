@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="loading">aguarde carregando...</div>
+  <Spinner v-if="loading" />
   <form v-else @submit.prevent="save">
     <div class="form">
       <div class="line">
@@ -125,8 +125,9 @@
 <script setup lang="ts">
 import { groupRequest as request } from '@/provider';
 import { useRoute, useRouter } from 'vue-router';
+import Spinner from '@/components/Spinner.vue';
 import { useStore } from '@/store/store';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const form = ref<GroupRequest>({ ...request });
 const error = ref<GroupError>();
@@ -161,18 +162,20 @@ async function save() {
   }
 }
 
-try {
-  if (route.name === 'group.edit') {
-    const { data } = await http.get<Group>(`group/${route.params.id}`);
-    form.value = { ...data };
+onMounted(async () => {
+  try {
+    if (route.name === 'group.edit') {
+      const { data } = await http.get<Group>(`group/${route.params.id}`);
+      form.value = { ...data };
+    }
+  } catch (err: any) {
+    if (err.response) {
+      error.value = err.response.data;
+    } else {
+      error.value = { message: err.message };
+    }
+  } finally {
+    loading.value = false;
   }
-} catch (err: any) {
-  if (err.response) {
-    error.value = err.response.data;
-  } else {
-    error.value = { message: err.message };
-  }
-} finally {
-  loading.value = false;
-}
+});
 </script>

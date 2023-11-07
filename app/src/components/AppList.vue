@@ -1,6 +1,6 @@
 <template>
   <template v-if="loading">
-    <div class="loading">aguarde carregando...</div>
+    <Spinner />
   </template>
   <template v-else>
     <div class="table">
@@ -108,9 +108,10 @@
 
 <script setup lang="ts">
 import { useAppStore } from '@/store/app-store';
+import Spinner from '@/components/Spinner.vue';
 import { intervalFromTime } from '@/provider';
 import { useStore } from '@/store/store';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 const appStore = useAppStore();
 const loading = ref(true);
 const store = useStore();
@@ -126,12 +127,14 @@ async function destroy(app: App) {
   } catch ({ response }: any) {}
 }
 
-try {
-  const { data } = await http.get<App[]>('app');
-  appStore.setRows(data);
-} catch (ex: any) {
-  console.error(ex.message);
-} finally {
-  loading.value = false;
-}
+onMounted(async () => {
+  try {
+    const { data } = await http.get<App[]>('app');
+    appStore.setRows(data);
+  } catch (ex: any) {
+    console.error(ex.message);
+  } finally {
+    loading.value = false;
+  }
+});
 </script>

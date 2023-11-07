@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="loading">aguarde carregando...</div>
+  <Spinner v-if="loading" />
   <form v-else @submit.prevent="onSubmit">
     <div class="form">
       <div class="line">
@@ -38,8 +38,9 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
+import Spinner from '@/components/Spinner.vue';
 import { useStore } from '@/store/store';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const request: ISearchRequest = {
   name: '',
@@ -101,20 +102,22 @@ const onSubmit = async () => {
   }
 };
 
-try {
-  let url;
-  if (route.name === 'app.search.edit') {
-    url = `app/${route.params.app}/search/${route.params.id}`;
-    const { data: _row } = await http.get<ISearch>(url);
-    form.value = { ..._row };
+onMounted(async () => {
+  try {
+    let url;
+    if (route.name === 'app.search.edit') {
+      url = `app/${route.params.app}/search/${route.params.id}`;
+      const { data: _row } = await http.get<ISearch>(url);
+      form.value = { ..._row };
+    }
+  } catch (err: any) {
+    if (err.response) {
+      error.value = err.response.data;
+    } else {
+      error.value = { message: err.message };
+    }
+  } finally {
+    loading.value = false;
   }
-} catch (err: any) {
-  if (err.response) {
-    error.value = err.response.data;
-  } else {
-    error.value = { message: err.message };
-  }
-} finally {
-  loading.value = false;
-}
+});
 </script>

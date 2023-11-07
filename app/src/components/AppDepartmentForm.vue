@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="loading">aguarde carregando...</div>
+  <Spinner v-if="loading" />
   <form v-else @submit.prevent="onSubmit">
     <div class="form">
       <div class="line">
@@ -24,8 +24,9 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
+import Spinner from '@/components/Spinner.vue';
 import { useStore } from '@/store/store';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const form = ref<IDepartmentRequest>({ name: '' });
 const error = ref<IDepartmentReply>();
@@ -64,20 +65,22 @@ const onSubmit = async () => {
   }
 };
 
-try {
-  let url;
-  if (route.name === 'app.department.edit') {
-    url = `app/${route.params.app}/department/${route.params.id}`;
-    const { data: _documentTypes } = await http.get<IDocumentType>(url);
-    form.value = { ..._documentTypes };
+onMounted(async () => {
+  try {
+    let url;
+    if (route.name === 'app.department.edit') {
+      url = `app/${route.params.app}/department/${route.params.id}`;
+      const { data: _documentTypes } = await http.get<IDocumentType>(url);
+      form.value = { ..._documentTypes };
+    }
+  } catch (err: any) {
+    if (err.response) {
+      error.value = err.response.data;
+    } else {
+      error.value = { message: err.message };
+    }
+  } finally {
+    loading.value = false;
   }
-} catch (err: any) {
-  if (err.response) {
-    error.value = err.response.data;
-  } else {
-    error.value = { message: err.message };
-  }
-} finally {
-  loading.value = false;
-}
+});
 </script>

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthRequest;
+use App\Http\Requests\PasswordRequest;
+use App\Http\Requests\ProfileRequest;
 use App\Models\User;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
@@ -42,5 +44,30 @@ class ProfileController extends Controller
         $user = auth()->user();
         $user->groups;
         return response($user);
+    }
+
+    public function changePassword(PasswordRequest $request): Response
+    {
+        /** @var User */
+        $user = auth()->user();
+        $user->update(['password' => $request->password]);
+        $user->groups;
+        return response($user, 201);
+    }
+
+    public function update(ProfileRequest $request): Response
+    {
+        /** @var User */
+        $user = auth()->user();
+        $update = [
+            'name' => $request->name,
+            'identity' => $request->identity,
+            'role' => $request->role,
+            'phone' => $request->phone,
+            'email' => $request->email,
+        ];
+        $user->update($update);
+        $user->groups;
+        return response($user, 200);
     }
 }
