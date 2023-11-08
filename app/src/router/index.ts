@@ -226,9 +226,10 @@ const middleware = async (
   to: RouteLocationNormalized,
   next: NavigationGuardNext
 ) => {
+  const store = useStore();
+  store.setLoading(true);
   if (!to.meta.require_auth) return next();
 
-  const store = useStore();
   const name = to.name?.toString() || '';
   try {
     if (!store.user) await store.loadProfile();
