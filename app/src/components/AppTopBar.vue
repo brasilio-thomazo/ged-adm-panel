@@ -62,6 +62,6 @@ const getNavigation = () => {
   return links;
 };
 
-const { data } = await http.get<App>(`app/${route.params.app}`);
+const { data } = await http.get<IApp>(`app/${route.params.app}`);
 path.value = data.path;
 </script>

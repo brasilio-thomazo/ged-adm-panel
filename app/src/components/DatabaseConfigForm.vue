@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="save">
+  <form @submit.prevent="onSubmit">
     <div class="form">
       <fieldset>
         <legend>Banco de dados</legend>
@@ -74,48 +74,41 @@ import { ref } from 'vue';
 import { db_drivers as drivers } from '@/provider';
 import { useRoute } from 'vue-router';
 import { useStore } from '@/store/store';
+import router from '@/router';
 
-const emit = defineEmits<{ (e: 'update', app: App): void }>();
-const props = defineProps<{ app: App }>();
-const reply = ref<DatabaseConfigReply>({});
-const form = ref<DatabaseConfigRequest>({
-  custom: false,
-  database: '',
-  app_id: props.app.id,
-});
 const route = useRoute();
 const store = useStore();
-const http = store.http();
 
-if (props.app.database_config) {
-  form.value = {
-    app_id: props.app.id,
-    custom: props.app.database_config.custom,
-    database: props.app.database_config.database,
-    driver: props.app.database_config.driver,
-    reader_host: props.app.database_config.reader_host,
-    reader_port: props.app.database_config.reader_port,
-    writer_host: props.app.database_config.writer_host,
-    writer_port: props.app.database_config.writer_port,
-  };
+const app = store.getCurrent<IApp>();
+
+const reply = ref<IDatabaseReply>({});
+const form = ref<IDatabaseRequest>({
+  custom: false,
+  database: '',
+  app_id: app.id,
+});
+
+if (app.database_config) {
+  form.value = { ...app.database_config };
 }
 
-async function save() {
-  try {
-    if (route.name === 'app.edit' && props.app.database_config) {
-      const url = `database_config/${props.app.database_config.id}`;
-      const { data } = await http.put<DatabaseConfig>(url, form.value);
-      emit('update', { ...props.app, database_config: data });
+async function onSubmit() {
+  let result: IResult;
+  if (route.name === 'app.edit') {
+    const id = app.database_config?.id;
+    result = await store.update(id, form.value, 'database_config');
+  } else {
+    result = await store.create(form.value, 'database_config');
+  }
+  if (result.status === 200) {
+    return;
+  } else if (result.status === 201 && app.cache_config && app.database_config) {
+    router.push({ name: 'app.show', params: { id: app.id } });
+  } else {
+    if (result.response?.data) {
+      reply.value = result.response.data;
     } else {
-      const url = 'database_config';
-      const { data } = await http.post<DatabaseConfig>(url, form.value);
-      emit('update', { ...props.app, database_config: data });
-    }
-  } catch (err: any) {
-    if (err.response) {
-      reply.value = err.response.data;
-    } else {
-      console.error(err);
+      reply.value = { message: result.error.message };
     }
   }
 }

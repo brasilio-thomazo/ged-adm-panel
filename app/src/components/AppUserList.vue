@@ -46,14 +46,14 @@ import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const emit = defineEmits<{ (e: 'remove', id: string): void }>();
-const props = defineProps<{ rows: IUser[] }>();
+const props = defineProps<{ rows: IAppUser[] }>();
 const rows = computed(() => props.rows);
 const store = useStore();
 const http = store.http();
 const router = useRouter();
 const route = useRoute();
 
-async function destroy(user: IUser) {
+async function destroy(user: IAppUser) {
   try {
     const msg = `Tem certeza que deseja remover o usuário ${user.username}`;
     if (confirm(msg)) {
@@ -63,7 +63,7 @@ async function destroy(user: IUser) {
   } catch ({ response }: any) {}
 }
 
-const onEdit = (user: IUser) => {
+const onEdit = (user: IAppUser) => {
   router.push({
     name: 'app.user.edit',
     params: { app: route.params.app, id: user.id },

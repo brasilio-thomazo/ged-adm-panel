@@ -1,12 +1,11 @@
 <template>
-  <Spinner v-if="loading" />
-  <form v-else @submit.prevent="save">
+  <form @submit.prevent="onSubmit">
     <div class="form">
       <div class="line">
         <label for="name">Nome:</label>
         <input type="text" id="name" v-model="form.name" />
-        <span v-if="error?.errors?.name" class="error">
-          {{ error.errors.name.join(',') }}
+        <span v-if="reply?.errors?.name" class="error">
+          {{ reply.errors.name.join(',') }}
         </span>
       </div>
       <div class="line">
@@ -107,11 +106,11 @@
             </label>
           </fieldset>
         </div>
-        <span v-if="error?.errors?.privileges" class="error">
-          {{ error.errors.privileges.join(',') }}
+        <span v-if="reply?.errors?.privileges" class="error">
+          {{ reply.errors.privileges.join(',') }}
         </span>
       </div>
-      <div v-if="error?.message" class="error">{{ error.message }}</div>
+      <div v-if="reply?.message" class="error">{{ reply.message }}</div>
       <div class="buttons">
         <button type="submit">
           <span class="material-icons">save</span>
@@ -125,57 +124,37 @@
 <script setup lang="ts">
 import { groupRequest as request } from '@/provider';
 import { useRoute, useRouter } from 'vue-router';
-import Spinner from '@/components/Spinner.vue';
 import { useStore } from '@/store/store';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
+import { Group } from '@/models';
 
-const form = ref<GroupRequest>({ ...request });
-const error = ref<GroupError>();
+const form = ref<IGroupRequest>({ ...request });
+const reply = ref<IGroupReply>();
 const router = useRouter();
 const store = useStore();
 const route = useRoute();
 
-const http = store.http();
-const loading = ref(true);
-const emit = defineEmits<{
-  (e: 'add', payload: Group): void;
-  (e: 'update', payload: Group): void;
-}>();
-
-async function save() {
-  try {
-    if (route.name === 'group.edit') {
-      const url = `group/${route.params.id}`;
-      const { data } = await http.put<Group>(url, form.value);
-      emit('update', data);
-    } else {
-      const { data } = await http.post<Group>('group', form.value);
-      emit('add', data);
-    }
-    router.push({ name: 'group' });
-  } catch (err: any) {
-    if (err.response) {
-      error.value = err.response.data;
-    } else {
-      error.value = { message: err.message };
-    }
-  }
+if (route.name === 'group.edit') {
+  form.value = { ...store.getCurrent<Group>() };
 }
 
-onMounted(async () => {
-  try {
-    if (route.name === 'group.edit') {
-      const { data } = await http.get<Group>(`group/${route.params.id}`);
-      form.value = { ...data };
-    }
-  } catch (err: any) {
-    if (err.response) {
-      error.value = err.response.data;
-    } else {
-      error.value = { message: err.message };
-    }
-  } finally {
-    loading.value = false;
+const onSubmit = async () => {
+  let result: IResult = { status: 200 };
+
+  if (route.name === 'group.edit') {
+    result = await store.update(route.params.id, form.value, 'group');
+  } else {
+    result = await store.create(form.value, 'group');
   }
-});
+
+  if (result.status === 200 || result.status === 201)
+    router.push({ name: 'group' });
+  else {
+    if (result.response?.data) {
+      reply.value = result.response.data;
+    } else {
+      reply.value = { message: result.error.message };
+    }
+  }
+};
 </script>

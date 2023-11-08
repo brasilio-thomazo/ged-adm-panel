@@ -1,5 +1,5 @@
 <template>
-  <AppBar :app="app" />
+  <AppBar v-if="route.name === 'app.show'" />
   <div class="show">
     <fieldset>
       <legend>Aplicação</legend>
@@ -34,8 +34,11 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { useStore } from '@/store/store';
 import AppBar from './AppBar.vue';
-const props = defineProps<{ app: App }>();
-const app = computed(() => props.app);
+import { App } from '@/models';
+import { useRoute } from 'vue-router';
+const store = useStore();
+const route = useRoute();
+const app = store.getCurrent<App>();
 </script>

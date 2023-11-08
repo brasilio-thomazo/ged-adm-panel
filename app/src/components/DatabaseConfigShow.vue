@@ -30,7 +30,7 @@
   </fieldset>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue';
-const props = defineProps<{ app: App }>();
-const config = computed(() => props.app.database_config);
+import { useStore } from '@/store/store';
+const store = useStore();
+const config = store.getCurrent<IApp>().database_config;
 </script>

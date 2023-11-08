@@ -35,7 +35,7 @@ const router = useRouter();
 const store = useStore();
 const http = store.http();
 
-const rows = ref<IUser[]>([]);
+const rows = ref<IAppUser[]>([]);
 const loading = ref(true);
 
 const isForm = computed(() => {
@@ -57,21 +57,21 @@ const remove = (id: string) => {
   }
 };
 
-const update = (payload: IUser) => {
+const update = (payload: IAppUser) => {
   const index = _.findIndex(rows.value, { id: payload.id });
   if (index > -1) {
     rows.value.splice(index, 1, payload);
   }
 };
 
-const add = (payload: IUser) => {
+const add = (payload: IAppUser) => {
   rows.value.unshift(payload);
 };
 
 onMounted(async () => {
   try {
     const url = `app/${route.params.app}/user`;
-    const { data } = await http.get<IUser[]>(url);
+    const { data } = await http.get<IAppUser[]>(url);
     rows.value = data;
   } catch (err: any) {
     if (err.response) {

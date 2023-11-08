@@ -5,8 +5,8 @@
       <div class="line">
         <label for="name">Nome:</label>
         <input type="text" id="name" v-model="form.name" required />
-        <span v-if="error?.errors?.name" class="error">
-          {{ error.errors.name.join(',') }}
+        <span v-if="reply?.errors?.name" class="error">
+          {{ reply.errors.name.join(',') }}
         </span>
       </div>
       <div class="line">
@@ -20,15 +20,15 @@
           pattern="^[0-9]{2,3}\.[0-9]{3}\.[0-9]{3}((\/[0-9]{4})?)-[0-9]{2}$"
           required
         />
-        <span v-if="error?.errors?.identity" class="error">
-          {{ error.errors.identity.join(',') }}
+        <span v-if="reply?.errors?.identity" class="error">
+          {{ reply.errors.identity.join(',') }}
         </span>
       </div>
       <div class="line">
         <label for="role">Cargo:</label>
         <input type="text" id="role" v-model="form.role" required />
-        <span v-if="error?.errors?.role" class="error">
-          {{ error.errors.role.join(',') }}
+        <span v-if="reply?.errors?.role" class="error">
+          {{ reply.errors.role.join(',') }}
         </span>
       </div>
       <div class="line">
@@ -42,29 +42,29 @@
           pattern="^\([0-9]{2}\) (9?)[0-9]{4}-[0-9]{4}$"
           required
         />
-        <span v-if="error?.errors?.phone" class="error">
-          {{ error.errors.phone.join(',') }}
+        <span v-if="reply?.errors?.phone" class="error">
+          {{ reply.errors.phone.join(',') }}
         </span>
       </div>
       <div class="line">
         <label for="email">E-mail:</label>
         <input type="email" id="email" v-model="form.email" />
-        <span v-if="error?.errors?.email" class="error">
-          {{ error.errors.email.join(',') }}
+        <span v-if="reply?.errors?.email" class="error">
+          {{ reply.errors.email.join(',') }}
         </span>
       </div>
       <div class="line">
         <label for="username">Usuário:</label>
         <input type="text" id="username" v-model="form.username" />
-        <span v-if="error?.errors?.username" class="error">
-          {{ error.errors.username.join(',') }}
+        <span v-if="reply?.errors?.username" class="error">
+          {{ reply.errors.username.join(',') }}
         </span>
       </div>
       <div class="line">
         <label for="password">Senha:</label>
         <input type="password" id="password" v-model="form.password" />
-        <span v-if="error?.errors?.password" class="error">
-          {{ error.errors.password.join(',') }}
+        <span v-if="reply?.errors?.password" class="error">
+          {{ reply.errors.password.join(',') }}
         </span>
       </div>
       <div class="line">
@@ -91,8 +91,8 @@
             </label>
           </div>
         </div>
-        <span v-if="error?.errors?.groups" class="error">
-          {{ error.errors.groups.join(',') }}
+        <span v-if="reply?.errors?.groups" class="error">
+          {{ reply.errors.groups.join(',') }}
         </span>
       </div>
       <div class="buttons">
@@ -115,20 +115,20 @@ import { onMounted, ref } from 'vue';
 
 const document = ref<MaskaDetail>({ ...maskDetail });
 const phone = ref<MaskaDetail>({ ...maskDetail });
-const form = ref<UserRequest>({ ...request });
-const error = ref<UserError>();
+const form = ref<IUserRequest>({ ...request });
+const reply = ref<IUserReply>();
 const router = useRouter();
 const route = useRoute();
 
 const store = useStore();
 const http = store.http();
 
-const groups = ref<Group[]>([]);
+const groups = ref<IGroup[]>([]);
 const loading = ref(true);
 
 const emit = defineEmits<{
-  (e: 'add', payload: User): void;
-  (e: 'update', payload: User): void;
+  (e: 'add', payload: IUser): void;
+  (e: 'update', payload: IUser): void;
 }>();
 
 const onSubmit = async () => {
@@ -141,28 +141,28 @@ const onSubmit = async () => {
 
     if (route.name === 'user.edit') {
       const url = `user/${route.params.id}`;
-      const { data } = await http.put<User>(url, request);
+      const { data } = await http.put<IUser>(url, request);
       emit('update', data);
     } else {
-      const { data } = await http.post<User>('user', request);
+      const { data } = await http.post<IUser>('user', request);
       emit('add', data);
     }
     router.push({ name: 'user' });
   } catch (err: any) {
     if (err.response) {
-      error.value = err.response.data;
+      reply.value = err.response.data;
     } else {
-      error.value = { message: err.message };
+      reply.value = { message: err.message };
     }
   }
 };
 
 onMounted(async () => {
   try {
-    const { data } = await http.get<Group[]>('group');
+    const { data } = await http.get<IGroup[]>('group');
     groups.value = data;
     if (route.name === 'user.edit') {
-      const { data } = await http.get<User>(`user/${route.params.id}`);
+      const { data } = await http.get<IUser>(`user/${route.params.id}`);
       form.value = {
         ...data,
         groups: data.groups.map((group) => group.id),
@@ -172,9 +172,9 @@ onMounted(async () => {
     }
   } catch (err: any) {
     if (err.response) {
-      error.value = err.response.data;
+      reply.value = err.response.data;
     } else {
-      error.value = { message: err.message };
+      reply.value = { message: err.message };
     }
   } finally {
     loading.value = false;

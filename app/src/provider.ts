@@ -85,12 +85,12 @@ export const maskDetail: MaskaDetail = {
   completed: false,
 };
 
-export const groupRequest: GroupRequest = {
+export const groupRequest: IGroupRequest = {
   name: '',
   privileges: {},
 };
 
-export const userRequest: UserRequest = {
+export const userRequest: IUserRequest = {
   name: '',
   email: '',
   username: '',
@@ -102,7 +102,7 @@ export const userRequest: UserRequest = {
   groups: [],
 };
 
-export const clientRequest: ClientRequest = {
+export const clientRequest: IClientRequest = {
   name: '',
   email: '',
   phone: '',
@@ -112,7 +112,7 @@ export const clientRequest: ClientRequest = {
   role: '',
 };
 
-export const appRequest: AppRequest = {
+export const appRequest: IAppRequest = {
   application: 0,
   path: '',
   client_id: '',
@@ -120,18 +120,18 @@ export const appRequest: AppRequest = {
   use_s3: false,
 };
 
-export const configDatabaseRequest: DatabaseConfigRequest = {
+export const configDatabaseRequest: IDatabaseRequest = {
   app_id: '',
   custom: false,
   database: '',
 };
 
-export const configCacheRequest: CacheConfigRequest = {
+export const configCacheRequest: ICacheRequest = {
   app_id: '',
   custom: false,
 };
 
-export const appGroupRequest: IGroupRequest = {
+export const appGroupRequest: IAppGroupRequest = {
   name: '',
   types: [],
   departments: [],
@@ -140,7 +140,7 @@ export const appGroupRequest: IGroupRequest = {
   privileges: {},
 };
 
-export const appUserRequest: IUserRequest = {
+export const appUserRequest: IAppUserRequest = {
   name: '',
   email: '',
   phone: '',

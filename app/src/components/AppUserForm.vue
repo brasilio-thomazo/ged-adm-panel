@@ -127,16 +127,16 @@ import { useStore } from '@/store/store';
 import { onMounted, ref } from 'vue';
 
 const emit = defineEmits<{
-  (e: 'add', payload: IUser): void;
-  (e: 'update', payload: IUser): void;
+  (e: 'add', payload: IAppUser): void;
+  (e: 'update', payload: IAppUser): void;
 }>();
 
 const identity = ref<MaskaDetail>({ ...maskDetail });
 const phone = ref<MaskaDetail>({ ...maskDetail });
-const form = ref<IUserRequest>({ ...request });
+const form = ref<IAppUserRequest>({ ...request });
 const departments = ref<IDepartment[]>([]);
-const groups = ref<IGroup[]>([]);
-const error = ref<IUserReply>();
+const groups = ref<IAppGroup[]>([]);
+const error = ref<IAppUserReply>();
 
 const router = useRouter();
 const loading = ref(false);
@@ -154,11 +154,11 @@ async function onSubmit() {
 
     if (route.name === 'app.user.edit') {
       const url = `app/${route.params.app}/user/${route.params.id}`;
-      const { data } = await http.put<IUser>(url, request);
+      const { data } = await http.put<IAppUser>(url, request);
       emit('update', data);
     } else {
       const url = `app/${route.params.app}/user`;
-      const { data } = await http.post<IUser>(url, request);
+      const { data } = await http.post<IAppUser>(url, request);
       emit('add', data);
     }
     router.push({ name: 'app.user', params: { app: route.params.app } });
@@ -176,14 +176,14 @@ onMounted(async () => {
     let url;
     if (route.name === 'app.user.edit') {
       url = `app/${route.params.app}/user/${route.params.id}`;
-      const { data } = await http.get<IUser>(url);
+      const { data } = await http.get<IAppUser>(url);
       form.value = {
         ...data,
         groups: data.groups.map((group) => group.id),
       };
     }
     url = `app/${route.params.app}/group`;
-    const { data: _groups } = await http.get<IGroup[]>(url);
+    const { data: _groups } = await http.get<IAppGroup[]>(url);
     groups.value = _groups;
 
     url = `app/${route.params.app}/department`;

@@ -73,7 +73,7 @@ import { computed } from 'vue';
 import _ from 'lodash';
 
 const emit = defineEmits<{ (e: 'remove', id: number): void }>();
-const props = defineProps<{ rows: IGroup[] }>();
+const props = defineProps<{ rows: IAppGroup[] }>();
 const rows = computed(() => props.rows);
 const router = useRouter();
 const route = useRoute();
@@ -81,7 +81,7 @@ const store = useStore();
 
 const http = store.http();
 
-const onEdit = (payload: IGroup) => {
+const onEdit = (payload: IAppGroup) => {
   router.push({
     name: 'app.group.edit',
     params: {
@@ -91,7 +91,7 @@ const onEdit = (payload: IGroup) => {
   });
 };
 
-const onDelete = async (payload: IGroup) => {
+const onDelete = async (payload: IAppGroup) => {
   try {
     if (confirm(`Tem certeza que deseja remover o grupo ${payload.name}`)) {
       const url = `app/${route.params.app}/group/${payload.id}`;

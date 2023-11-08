@@ -1,7 +1,9 @@
 <template>
   <div>Bem vindo de volta.</div>
 </template>
+<script setup lang="ts">
+import { useStore } from '@/store/store';
 
-<script setup lang="ts"></script>
-
-<style scoped></style>
+const store = useStore();
+store.setLoading(false);
+</script>

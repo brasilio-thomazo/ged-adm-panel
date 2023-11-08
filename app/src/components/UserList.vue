@@ -52,18 +52,18 @@ import { mask } from '@/provider';
 import _ from 'lodash';
 
 const emit = defineEmits<{ (e: 'remove', id: string): void }>();
-const props = defineProps<{ rows: User[] }>();
+const props = defineProps<{ rows: IUser[] }>();
 const rows = computed(() => props.rows);
 const router = useRouter();
 const store = useStore();
 
 const http = store.http();
 
-const onEdit = (payload: User) => {
+const onEdit = (payload: IUser) => {
   router.push({ name: 'user.edit', params: { id: payload.id } });
 };
 
-const onDelete = async (payload: User) => {
+const onDelete = async (payload: IUser) => {
   try {
     if (
       confirm(`Tem certeza que deseja remover o usuário ${payload.username}`)

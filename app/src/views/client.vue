@@ -35,7 +35,7 @@ const router = useRouter();
 const store = useStore();
 const http = store.http();
 
-const rows = ref<Client[]>([]);
+const rows = ref<IClient[]>([]);
 const loading = ref(true);
 
 const isForm = computed(
@@ -49,20 +49,20 @@ const remove = (id: string) => {
   }
 };
 
-const update = (payload: Client) => {
+const update = (payload: IClient) => {
   const index = _.findIndex(rows.value, { id: payload.id });
   if (index > -1) {
     rows.value.splice(index, 1, payload);
   }
 };
 
-const add = (payload: Client) => {
+const add = (payload: IClient) => {
   rows.value.unshift(payload);
 };
 
 onMounted(async () => {
   try {
-    const { data } = await http.get<Client[]>('client');
+    const { data } = await http.get<IClient[]>('client');
     rows.value = data;
   } catch (err: any) {
     if (err.response) {

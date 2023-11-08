@@ -81,6 +81,7 @@ onMounted(async () => {
     }
   } finally {
     loading.value = false;
+    store.setLoading(false);
   }
 });
 </script>

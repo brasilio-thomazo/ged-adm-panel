@@ -49,20 +49,20 @@ import { computed } from 'vue';
 import _ from 'lodash';
 
 const emit = defineEmits<{ (e: 'remove', id: string): void }>();
-const props = defineProps<{ rows: Client[] }>();
+const props = defineProps<{ rows: IClient[] }>();
 const rows = computed(() => props.rows);
 const router = useRouter();
 const store = useStore();
 
 const http = store.http();
 
-const onEdit = (payload: Client) => {
+const onEdit = (payload: IClient) => {
   router.push({ name: 'client.edit', params: { id: payload.id } });
 };
 
 const scope = { client: 'Cliente', provider: 'Fornecedor' };
 
-const onDelete = async (payload: Client) => {
+const onDelete = async (payload: IClient) => {
   try {
     if (
       confirm(`Tem certeza que deseja remover a organização ${payload.name}`)

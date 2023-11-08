@@ -229,8 +229,8 @@ import Spinner from '@/components/Spinner.vue';
 import { useStore } from '@/store/store';
 import { ref } from 'vue';
 
-const form = ref<IGroupRequest>({ ...request });
-const error = ref<IGroupReply>();
+const form = ref<IAppGroupRequest>({ ...request });
+const error = ref<IAppGroupReply>();
 const router = useRouter();
 const store = useStore();
 const route = useRoute();
@@ -238,8 +238,8 @@ const route = useRoute();
 const http = store.http();
 const loading = ref(true);
 const emit = defineEmits<{
-  (e: 'add', payload: IGroup): void;
-  (e: 'update', payload: IGroup): void;
+  (e: 'add', payload: IAppGroup): void;
+  (e: 'update', payload: IAppGroup): void;
 }>();
 
 const documentTypes = ref<IDocumentType[]>([]);
@@ -261,11 +261,11 @@ const onSubmit = async () => {
   try {
     if (route.name === 'app.group.edit') {
       const url = `app/${route.params.app}/group/${route.params.id}`;
-      const { data } = await http.put<IGroup>(url, form.value);
+      const { data } = await http.put<IAppGroup>(url, form.value);
       emit('update', data);
     } else {
       const url = `app/${route.params.app}/group`;
-      const { data } = await http.post<IGroup>(url, form.value);
+      const { data } = await http.post<IAppGroup>(url, form.value);
       emit('add', data);
     }
     router.push({ name: 'app.group', params: { app: route.params.app } });
@@ -282,7 +282,7 @@ try {
   let url;
   if (route.name === 'app.group.edit') {
     url = `app/${route.params.app}/group/${route.params.id}`;
-    const { data: _group } = await http.get<IGroup>(url);
+    const { data: _group } = await http.get<IAppGroup>(url);
     form.value = { ..._group };
   }
 

@@ -35,7 +35,7 @@ const router = useRouter();
 const store = useStore();
 const http = store.http();
 
-const users = ref<User[]>([]);
+const users = ref<IUser[]>([]);
 const loading = ref(true);
 const isForm = computed(
   () => route.name === 'user.new' || route.name === 'user.edit'
@@ -48,20 +48,20 @@ const remove = (id: string) => {
   }
 };
 
-const update = (user: User) => {
+const update = (user: IUser) => {
   const index = _.findIndex(users.value, { id: user.id });
   if (index > -1) {
     users.value.splice(index, 1, user);
   }
 };
 
-const add = (user: User) => {
+const add = (user: IUser) => {
   users.value.unshift(user);
 };
 
 onMounted(async () => {
   try {
-    const { data } = await http.get<User[]>('user');
+    const { data } = await http.get<IUser[]>('user');
     users.value = data;
   } catch (err: any) {
     console.error(err);

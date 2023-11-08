@@ -3,22 +3,22 @@
     <TopBar path="app" />
     <div class="view-content">
       <template v-if="isFormNew">
-        <AppShow v-if="app" :app="app" />
-        <AppForm v-else @update="update" />
-        <DatabaseConfigShow v-if="app && app.database_config" :app="app" />
-        <DatabaseConfigForm v-else-if="app" :app="app" @update="update" />
-        <CacheConfigShow v-if="app && app.cache_config" :app="app" />
-        <CacheConfigForm v-else-if="app" :app="app" @update="update" />
+        <AppShow v-if="app" />
+        <AppForm v-else />
+        <DatabaseConfigShow v-if="app?.database_config" />
+        <DatabaseConfigForm v-else-if="app" />
+        <CacheConfigShow v-if="app?.cache_config" />
+        <CacheConfigForm v-else-if="app" />
       </template>
       <template v-else-if="route.name === 'app.edit'">
-        <AppForm @update="update" />
-        <DatabaseConfigForm v-if="app" :app="app" @update="update" />
-        <CacheConfigForm v-if="app" :app="app" @update="update" />
+        <AppForm />
+        <DatabaseConfigForm />
+        <CacheConfigForm />
       </template>
       <template class="show" v-else-if="route.name === 'app.show'">
-        <AppShow v-if="app" :app="app" />
-        <DatabaseConfigShow v-if="app && app.database_config" :app="app" />
-        <CacheConfigShow v-if="app && app.cache_config" :app="app" />
+        <AppShow />
+        <DatabaseConfigShow />
+        <CacheConfigShow />
       </template>
       <AppList v-else>
         <div class="buttons">
@@ -38,44 +38,20 @@ import DatabaseConfigShow from '@/components/DatabaseConfigShow.vue';
 import CacheConfigForm from '@/components/CacheConfigForm.vue';
 import CacheConfigShow from '@/components/CacheConfigShow.vue';
 import { useRoute, useRouter } from 'vue-router';
-import { computed, ref, watchEffect } from 'vue';
+import { computed } from 'vue';
 import AppForm from '@/components/AppForm.vue';
 import AppList from '@/components/AppList.vue';
 import AppShow from '@/components/AppShow.vue';
 import TopBar from '@/components/TopBar.vue';
 import { useStore } from '@/store/store';
-
-const app = ref<App>();
+import { App } from '@/models';
 
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
-const http = store.http();
 
+const app = computed(() => store.getCurrent<App>());
 const isFormNew = computed(() => {
   return route.name === 'app.new' || route.name === 'app.continue';
 });
-
-watchEffect(async () => {
-  if (route.name === 'app.new') {
-    app.value = undefined;
-  }
-
-  if (route.name === 'app.show' || route.name === 'app.continue') {
-    const url = `app/${route.params.id}`;
-    const { data } = await http.get<App>(url);
-    if (data.cache_config === null || data.database_config === null) {
-      router.push({ name: 'app.continue', params: { id: data.id } });
-    }
-    app.value = data;
-  }
-});
-
-function update(obj: App) {
-  app.value = obj;
-  if (route.name !== 'app.new' && route.name !== 'app.continue') return;
-  if (obj.cache_config !== null && obj.database_config !== null) {
-    router.push({ name: 'app' });
-  }
-}
 </script>

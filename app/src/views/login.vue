@@ -61,13 +61,13 @@ const init = {
 const http = inject('http', axios);
 const store = useStore();
 
-const error = ref<AuthError>();
-const form = ref<AuthRequest>({ ...init });
+const error = ref<IAuthReply>();
+const form = ref<IAuthRequest>({ ...init });
 const router = useRouter();
 
 async function login() {
   try {
-    const { data } = await http.post<AuthReply>('/login', form.value);
+    const { data } = await http.post<IAuth>('/login', form.value);
     store.setUser(data.user);
     store.setToken(data.token);
     router.push({ name: 'home' });
@@ -75,4 +75,5 @@ async function login() {
     error.value = response?.data;
   }
 }
+store.setLoading(false);
 </script>

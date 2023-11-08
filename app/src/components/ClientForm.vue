@@ -113,15 +113,15 @@ import { onMounted, ref } from 'vue';
 
 const document = ref<MaskaDetail>({ ...maskDetail });
 const phone = ref<MaskaDetail>({ ...maskDetail });
-const form = ref<ClientRequest>({ ...request });
-const error = ref<ClientError>();
+const form = ref<IClientRequest>({ ...request });
+const error = ref<IClientReply>();
 const router = useRouter();
 const store = useStore();
 const route = useRoute();
 
 const emit = defineEmits<{
-  (e: 'add', payload: Client): void;
-  (e: 'update', payload: Client): void;
+  (e: 'add', payload: IClient): void;
+  (e: 'update', payload: IClient): void;
 }>();
 
 const http = store.http();
@@ -137,10 +137,10 @@ const onSubmit = async () => {
 
     if (route.name === 'client.edit') {
       const url = `client/${route.params.id}`;
-      const { data } = await http.put<Client>(url, request);
+      const { data } = await http.put<IClient>(url, request);
       emit('update', data);
     } else {
-      const { data } = await http.post<Client>('client', request);
+      const { data } = await http.post<IClient>('client', request);
       emit('add', data);
     }
     router.push({ name: 'client' });
@@ -156,7 +156,7 @@ const onSubmit = async () => {
 onMounted(async () => {
   try {
     if (route.name === 'client.edit') {
-      const { data } = await http.get<Client>(`client/${route.params.id}`);
+      const { data } = await http.get<IClient>(`client/${route.params.id}`);
       form.value = { ...data };
     }
   } catch (ex: any) {

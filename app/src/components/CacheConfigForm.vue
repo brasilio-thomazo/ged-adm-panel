@@ -56,44 +56,40 @@
 import { ref } from 'vue';
 import { cache_drivers as drivers } from '@/provider';
 import { useStore } from '@/store/store';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
-const emit = defineEmits<{ (e: 'update', app: App): void }>();
-const props = defineProps<{ app: App }>();
-
-const form = ref<CacheConfigRequest>({ custom: false, app_id: props.app.id });
-const reply = ref<CacheConfigReply>({});
-const store = useStore();
 const route = useRoute();
+const store = useStore();
+const router = useRouter();
+const app = store.getCurrent<IApp>();
 
-const http = store.http();
+const form = ref<ICacheRequest>({ custom: false, app_id: app.id });
+const reply = ref<ICacheReply>({});
+
 async function save() {
-  try {
-    if (route.name === 'app.edit' && props.app.cache_config) {
-      const url = `cache_config/${props.app.cache_config.id}`;
-      const { data } = await http.put<CacheConfig>(url, form.value);
-      emit('update', { ...props.app, cache_config: data });
+  let result: IResult;
+  if (route.name === 'app.edit') {
+    const id = app.cache_config?.id;
+    result = await store.update(id, form.value, 'cache_config');
+  } else {
+    result = await store.create(form.value, 'cache_config');
+  }
+  if (result.status === 200) {
+    return;
+  } else if (result.status === 201 && app.cache_config && app.database_config) {
+    router.push({ name: 'app.show', params: { id: app.id } });
+  } else {
+    if (result.response?.data) {
+      reply.value = result.response.data;
     } else {
-      const url = 'cache_config/';
-      const { data } = await http.post<CacheConfig>(url, form.value);
-      emit('update', { ...props.app, cache_config: data });
-    }
-  } catch (err: any) {
-    if (err.response) {
-      reply.value = err.response.data;
-    } else {
-      console.error(err.message);
+      reply.value = { message: result.error.message };
     }
   }
 }
 
-if (route.name === 'app.edit' && props.app.cache_config) {
-  form.value = {
-    app_id: props.app.id,
-    custom: props.app.cache_config.custom,
-    driver: props.app.cache_config.driver,
-    host: props.app.cache_config.host,
-    port: props.app.cache_config.port,
-  };
+if (route.name === 'app.edit') {
+  if (app.cache_config) {
+    form.value = { ...app.cache_config };
+  }
 }
 </script>

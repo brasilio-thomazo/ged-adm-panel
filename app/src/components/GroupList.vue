@@ -17,7 +17,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in rows" :key="row.id">
+        <tr v-for="row in store.list(Group)" :key="row.id">
           <td>{{ row.name }}</td>
           <td>
             <div class="permits">
@@ -85,29 +85,25 @@
 </template>
 
 <script setup lang="ts">
+import { Group } from '@/models';
 import { useStore } from '@/store/store';
 import { useRouter } from 'vue-router';
-import { computed } from 'vue';
-import _ from 'lodash';
-
-const emit = defineEmits<{ (e: 'remove', id: number): void }>();
-const props = defineProps<{ rows: Group[] }>();
-const rows = computed(() => props.rows);
 const router = useRouter();
 const store = useStore();
-
-const http = store.http();
 
 const onEdit = (payload: Group) => {
   router.push({ name: 'group.edit', params: { id: payload.id } });
 };
 
 const onDelete = async (payload: Group) => {
-  try {
-    if (confirm(`Tem certeza que deseja remover o grupo ${payload.name}`)) {
-      await http.delete(`group/${payload.id}`);
-      emit('remove', payload.id);
-    }
-  } catch ({ response }: any) {}
+  const result = await store.remove(payload.id, 'group');
+  if (result.status === 204) {
+    alert('Grupo removido com sucesso!');
+  } else if (result.response?.data?.message) {
+    alert(result.response.data.message);
+  } else {
+    alert('Erro ao remover grupo!');
+    console.error(result.error);
+  }
 };
 </script>

@@ -20,7 +20,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue';
-const props = defineProps<{ app: App }>();
-const config = computed(() => props.app.cache_config);
+import { useStore } from '@/store/store';
+
+const store = useStore();
+const config = store.getCurrent<IApp>().cache_config;
 </script>

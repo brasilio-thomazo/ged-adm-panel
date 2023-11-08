@@ -1,7 +1,11 @@
 import { useStore } from '@/store/store';
-import axios from 'axios';
-import { inject } from 'vue';
-import { RouteRecordRaw, createRouter, createWebHashHistory } from 'vue-router';
+import {
+  NavigationGuardNext,
+  RouteLocationNormalized,
+  RouteRecordRaw,
+  createRouter,
+  createWebHashHistory,
+} from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -210,20 +214,101 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, _from, next) => {
+  await middleware(to, next);
+});
+
+router.afterEach(() => {
   const store = useStore();
-  const http = inject('http', axios);
-  const token = localStorage.getItem('token');
-  http.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  if (to.meta.require_auth) {
-    try {
-      const { data } = await http.get<User>('me');
-      store.setUser(data);
-      return next();
-    } catch ({ response }: any) {
-      return next({ name: 'login' });
+  store.setLoading(false);
+});
+
+const middleware = async (
+  to: RouteLocationNormalized,
+  next: NavigationGuardNext
+) => {
+  if (!to.meta.require_auth) return next();
+
+  const store = useStore();
+  const name = to.name?.toString() || '';
+  try {
+    if (!store.user) await store.loadProfile();
+  } catch (err: any) {
+    if (err.response?.status === 401) {
+      next({ name: 'login' });
+    } else {
+      console.log('ERROR', err);
     }
   }
-  next();
-});
+
+  if (/^(group|user|client|app)(\.(new|continue|edit)|)/.test(name)) {
+    const rName = name.split('.')[0] || name;
+    const result = await store.getAll(rName as IRoute);
+    if (result.status === 401) {
+      alert('Você não tem permissão para acessar esta página');
+      return next({ name: 'home' });
+    } else if (result.status === 404) {
+      if (result.response?.data?.message) alert(result.response?.data?.message);
+      return next({ name: 'not_found' });
+    }
+  }
+
+  if (/^user\.(edit|new)$/.test(name)) {
+    const result = await store.getAll('group');
+    if (result.status === 401) {
+      alert('Você não tem permissão para acessar esta página');
+      return next({ name: 'home' });
+    } else if (result.status === 404) {
+      if (result.response?.data?.message) alert(result.response?.data?.message);
+      return next({ name: 'not_found' });
+    }
+  }
+
+  if (/·*\.new$/.test(name)) {
+    console.log('CLEAR CURRENT');
+    store.clearCurrent();
+  }
+
+  if (/^app\.(edit|new)$/.test(name)) {
+    const result = await store.getAll('client');
+    if (result.status === 401) {
+      alert('Você não tem permissão para acessar esta página');
+      return next({ name: 'home' });
+    } else if (result.status === 404) {
+      if (result.response?.data?.message) alert(result.response?.data?.message);
+      return next({ name: 'not_found' });
+    }
+  }
+
+  if (/^app\.show$/.test(name)) {
+    const result = await store.get(to.params.id, 'app');
+    if (result.status === 200) {
+      const app = store.getCurrent<IApp>();
+      if (!app.cache_config || !app.database_config)
+        return next({ name: 'app.continue', params: { id: app.id } });
+      return next();
+    } else if (result.status === 401) {
+      alert('Você não tem permissão para acessar esta página');
+      return next({ name: 'home' });
+    } else if (result.status === 404) {
+      if (result.response?.data?.message) alert(result.response?.data?.message);
+      return next({ name: 'not_found' });
+    }
+  }
+
+  if (/^(group|user|client|app)\.(show|edit|continue)$/.test(name)) {
+    const rName = name.split('.')[0];
+    const result = await store.get(to.params.id, rName as IRoute);
+    if (result.status === 200) return next();
+    else if (result.status === 401) {
+      alert('Você não tem permissão para acessar esta página');
+      return next({ name: 'home' });
+    } else if (result.status === 404) {
+      if (result.response?.data?.message) alert(result.response?.data?.message);
+      return next({ name: 'not_found' });
+    }
+  }
+
+  return next();
+};
 
 export default router;
