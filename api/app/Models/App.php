@@ -56,20 +56,20 @@ class App extends Model
     public function getUrlKubernetesAttribute(): string
     {
         $url = Cache::get("app.{$this->id}.url");
-        if (!$url) {
+        if (!$url && $this->id) {
             $url = URL::signedRoute('app.kubernetes', ['app' => $this->id]);
             Cache::put("app.{$this->id}.url", $url, 60 * 60 * 24);
         }
-        return $url;
+        return $url ?? "";
     }
 
     public function getUrlSubscribeAttribute(): string
     {
         $url = Cache::get("app.{$this->id}.subscribe");
-        if (!$url) {
+        if (!$url && $this->id) {
             $url = URL::signedRoute('app.subscribe', ['app' => $this->id]);
             Cache::put("app.{$this->id}.subscribe", $url, 60 * 60 * 24);
         }
-        return $url;
+        return $url ?? "";
     }
 }
