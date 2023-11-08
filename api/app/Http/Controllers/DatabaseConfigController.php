@@ -35,7 +35,7 @@ class DatabaseConfigController extends Controller
             'database' => $request->get('database'),
         ];
         $databaseConfig = DatabaseConfig::create($save);
-        return response()->json($databaseConfig);
+        return response()->json($databaseConfig, 201);
     }
 
     /**

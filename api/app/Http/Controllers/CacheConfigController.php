@@ -31,7 +31,7 @@ class CacheConfigController extends Controller
             'port' => $custom ? $request->get('port') : config("database.redis.cache.port")
         ];
         $cacheConfig = CacheConfig::create($save);
-        return response()->json($cacheConfig);
+        return response()->json($cacheConfig, 201);
     }
 
     /**
