@@ -8,11 +8,13 @@ services:
     container_name: postgres-writer
     image: devoptimus/postgres
     environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USERNAME=postgres
-      - REPLICANT_USERNAME=replicant
-      - REPLICANT_PASSWORD=replicant
-      - LOG_STATEMENT=none
+		  - MASTER_HOST=db-writer
+		  - MASTER_PORT=5432
+		  - SLOT_NAME=master
+		  - POSTGRES_USERNAME=postgres
+		  - POSTGRES_PASSWORD=postgres
+		  - REPLICANT_USERNAME=replicant
+		  - REPLICANT_PASSWORD=replicant
     healthcheck:
       test:
         ['CMD', 'pg_isready', '-d', 'postgres', '-p', '5432', '-q', '-t', '5']
@@ -24,12 +26,14 @@ services:
     container_name: postgres-reader
     image: devoptimus/postgres
     environment:
-      - REPLICANT_USERNAME=replicant
-      - REPLICANT_PASSWORD=replicant
-      - MASTER_SERVER=postgres-writer
-      - MASTER_PORT=5432
-      - SLOT_NAME=master
-      - LOG_STATEMENT=none
+		  - MASTER_HOST=db-writer
+		  - MASTER_PORT=5432
+		  - SLOT_NAME=master
+		  - POSTGRES_USERNAME=postgres
+		  - POSTGRES_PASSWORD=postgres
+		  - REPLICANT_USERNAME=replicant
+		  - REPLICANT_PASSWORD=replicant
+      - REPLICATION_MODE=slave
     healthcheck:
       test: ['CMD', 'pg_isready', '-d', 'postgres', '-p', '5432']
       interval: 5s
