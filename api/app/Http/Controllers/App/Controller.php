@@ -14,7 +14,7 @@ class Controller extends BaseController
     public function getBaseURL(App $app): string
     {
         $container = config('app.kubernetes.client_container');
-        $host = ($app->domain ? $app->domain : ($container ? "{$container}-{$app->path}" : "localhost:8010"));
+        $host = $app->domain ? $app->domain : $app->path . "-client-nginx";
         return "http://{$host}/api";
     }
 
