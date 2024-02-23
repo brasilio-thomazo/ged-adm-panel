@@ -4,9 +4,13 @@ services:
     container_name: redis
     image: redis:alpine
     command: ['redis-server', '--appendonly', 'yes']
+    networks:
+      - ecodoc_dev
   postgres-writer:
     container_name: postgres-writer
     image: devoptimus/postgres
+    networks:
+      - ecodoc_dev
     environment:
       - MASTER_HOST=postgres-writer
       - MASTER_PORT=5432
@@ -25,6 +29,8 @@ services:
   postgres-reader:
     container_name: postgres-reader
     image: devoptimus/postgres
+    networks:
+      - ecodoc_dev
     environment:
       - MASTER_HOST=postgres-writer
       - MASTER_PORT=5432
@@ -46,6 +52,8 @@ services:
   ged-admin-node:
     container_name: ged-admin-node
     image: devoptimus/ged-admin-node
+    networks:
+      - ecodoc_dev
     build:
       context: .
       dockerfile: Dockerfile
@@ -54,6 +62,8 @@ services:
   ged-admin-cli:
     container_name: ged-admin-cli
     image: devoptimus/ged-admin-cli
+    networks:
+      - ecodoc_dev
     build:
       context: .
       dockerfile: Dockerfile
@@ -95,6 +105,8 @@ services:
   ged-admin-fpm:
     container_name: ged-admin-fpm
     image: devoptimus/ged-admin-fpm
+    networks:
+      - ecodoc_dev
     build:
       context: .
       dockerfile: Dockerfile
@@ -142,6 +154,8 @@ services:
   ged-admin-nginx:
     container_name: ged-admin-nginx
     image: devoptimus/ged-admin-nginx
+    networks:
+      - ecodoc_dev
     build:
       context: .
       dockerfile: Dockerfile
@@ -159,3 +173,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 2s
+networks:
+  ecodoc_dev:
+    external: true
