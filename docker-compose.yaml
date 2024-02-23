@@ -3,7 +3,7 @@ services:
   redis:
     container_name: redis
     image: redis:alpine
-    command: ['redis-server', '--appendonly', 'yes']
+    command: [ 'redis-server', '--appendonly', 'yes' ]
     networks:
       - ecodoc_dev
   postgres-writer:
@@ -21,7 +21,17 @@ services:
       - REPLICANT_PASSWORD=replicant
     healthcheck:
       test:
-        ['CMD', 'pg_isready', '-d', 'postgres', '-p', '5432', '-q', '-t', '5']
+        [
+          'CMD',
+          'pg_isready',
+          '-d',
+          'postgres',
+          '-p',
+          '5432',
+          '-q',
+          '-t',
+          '5'
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -41,7 +51,7 @@ services:
       - REPLICANT_PASSWORD=replicant
       - REPLICATION_MODE=slave
     healthcheck:
-      test: ['CMD', 'pg_isready', '-d', 'postgres', '-p', '5432']
+      test: [ 'CMD', 'pg_isready', '-d', 'postgres', '-p', '5432' ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -58,7 +68,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: node
-    command: ['sleep', 'infinity']
+    command: [ 'sleep', 'infinity' ]
   ged-admin-cli:
     container_name: ged-admin-cli
     image: devoptimus/ged-admin-cli
@@ -84,7 +94,9 @@ services:
       - DB_USERNAME=optimus
       - DB_PASSWORD=optimus
       - DB_READER_HOST=postgres-reader
+      - DB_READER_PORT=5432
       - DB_WRITER_HOST=postgres-writer
+      - DB_WRITER_PORT=5432
       - REDIS_HOST=redis
       - REDIS_PORT="6379"
       - MEMCACHED_HOST=memchached
@@ -101,7 +113,7 @@ services:
         condition: service_healthy
       postgres-reader:
         condition: service_healthy
-    command: ['php', 'artisan', 'app:install']
+    command: [ 'php', 'artisan', 'app:install' ]
   ged-admin-fpm:
     container_name: ged-admin-fpm
     image: devoptimus/ged-admin-fpm
@@ -115,9 +127,8 @@ services:
       - APP_KEY=base64:CyUNByT3Wh2gIoRoibP52U1E7jKf1ef5MwHq29h2H9E=
       - CLIENT_DOMAIN=optimus.dev.br
       - APP_DEBUG=false
-      - APP_ENV=loccal
-      - APP_URL=localhost:8080
-      - APP_NAME="AdminPanel"
+      - APP_ENV=local
+      - APP_NAME=AdminPanel
       - DB_CONNECTION=pgsql
       - DB_HOST=postgres-writer
       - DB_PORT="5432"
@@ -128,7 +139,9 @@ services:
       - DB_USERNAME=optimus
       - DB_PASSWORD=optimus
       - DB_READER_HOST=postgres-reader
+      - DB_READER_PORT=5432
       - DB_WRITER_HOST=postgres-writer
+      - DB_WRITER_PORT=5432
       - REDIS_HOST=redis
       - REDIS_PORT="6379"
       - MEMCACHED_HOST=memchached
@@ -146,7 +159,7 @@ services:
       postgres-reader:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'nc', '-z', 'localhost', '9000']
+      test: [ 'CMD', 'nc', '-z', 'localhost', '9000' ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -168,7 +181,7 @@ services:
       ged-admin-fpm:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'curl', 'http://localhost']
+      test: [ 'CMD', 'curl', 'http://localhost' ]
       interval: 5s
       timeout: 5s
       retries: 5
