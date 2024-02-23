@@ -8,7 +8,7 @@ services:
     container_name: postgres-writer
     image: devoptimus/postgres
     environment:
-      - MASTER_HOST=db-writer
+      - MASTER_HOST=postgres-writer
       - MASTER_PORT=5432
       - SLOT_NAME=master
       - POSTGRES_USERNAME=postgres
@@ -26,7 +26,7 @@ services:
     container_name: postgres-reader
     image: devoptimus/postgres
     environment:
-      - MASTER_HOST=db-writer
+      - MASTER_HOST=postgres-writer
       - MASTER_PORT=5432
       - SLOT_NAME=master
       - POSTGRES_USERNAME=postgres
